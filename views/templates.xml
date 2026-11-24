@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="page" name="Mokausi">
+        <t t-call="website.layout">
+            <t t-set="additional_title">Mokausi kartu</t>
+            <div id="wrap">
+                <iframe src="/mokausi/app" title="Mokausi kartu" allow="fullscreen"
+                        style="display:block;width:100%;height:calc(100vh - 80px);min-height:640px;border:0"/>
+            </div>
+        </t>
+    </template>
+</odoo>

@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="lt" data-mode="kartu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mokausi kartu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap&subset=latin-ext" rel="stylesheet">
+<style>
+/* VOICE everyday learning: clear, warm, a little playful, never childish
+   IDEA a physics lab bench: real instruments (thermometer, hot plate, beaker) you work with your hands
+   PICTURE each topic's live experiment drawn large, particles and curves reacting to touch
+   COLOUR white or deep night ground, cobalt for physics, heat orange and cold blue as the two working colours
+   TYPE Unbounded for titles + Inter for text
+   LAYOUT laptop: text beside its diagram, experiment canvas beside controls; phone: title, picture, controls stacked */
+:root{color-scheme:light dark;
+--bg:light-dark(#ffffff,#0f1220);--ink:light-dark(#121624,#eceef6);--muted:light-dark(#596075,#9ea5b8);
+--line:light-dark(#e1e5ee,#283047);--panel:light-dark(#f2f4fa,#171b2d);--panel2:light-dark(#e8ecf7,#1f2438);
+--fiz:light-dark(#2340d8,#7a90ff);--band:light-dark(#2340d8,#1b2c94);--bio:light-dark(#2b8a3e,#5fd17a);--geo:light-dark(#0b7285,#3bc4d9);
+--hot:light-dark(#ea4a12,#ff6c36);--cold:light-dark(#1785dc,#4aa9ff);--ok:light-dark(#13804a,#45d08c);--bad:light-dark(#c8283a,#ff6f7c);
+--ok-bg:light-dark(#e3f5eb,#12301f);--bad-bg:light-dark(#fbe6e8,#3a1820);--hint:light-dark(#fff4d6,#3a3114)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html{font-size:16px;-webkit-text-size-adjust:100%}
+html[data-mode=kartu]{font-size:18px}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.55 Inter,system-ui,sans-serif;overflow-x:clip}
+h1,h2,h3{font-family:Unbounded,Inter,sans-serif;letter-spacing:-.02em;line-height:1.08;margin:0;text-wrap:balance}
+h1{font-size:clamp(30px,4.4vw,46px);font-weight:600}
+h2{font-size:clamp(22px,2.6vw,28px);font-weight:600}
+h3{font-size:1.08rem;font-weight:600;margin:1.2em 0 .35em}
+p{margin:.45em 0}
+button{font:inherit;color:inherit;cursor:pointer}
+.wrap{max-width:1240px;margin:0 auto;padding:0 max(4vw,16px)}
+.band{padding-block:clamp(24px,4vw,52px)}
+.top{position:sticky;top:0;z-index:10;background:var(--bg);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;min-height:60px;padding-block:8px}
+.brand{font-family:Unbounded,sans-serif;font-weight:700;font-size:18px;background:none;border:0;padding:8px 4px;min-height:44px}
+.brand i{font-style:normal;color:var(--hot)}
+.nav{display:flex;gap:4px;flex-wrap:wrap}
+.nav a{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 12px;border-radius:10px;color:var(--ink);text-decoration:none;font-weight:500}
+.nav a.on{background:var(--panel2)}
+.count{background:var(--hot);color:#fff;border-radius:99px;font-size:13px;font-weight:700;padding:1px 8px}
+.sp{flex:1}
+.seg{display:inline-flex;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:3px}
+.seg button{border:0;background:none;border-radius:9px;min-height:40px;padding:0 14px;font-weight:600;color:var(--muted)}
+.seg button.on{background:var(--bg);color:var(--ink);box-shadow:0 1px 3px #0002}
+.chip{display:inline-flex;align-items:center;gap:6px;font-weight:600;font-size:15px;white-space:nowrap}
+.chip b{font-family:Unbounded,sans-serif;font-weight:600}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 20px;border-radius:12px;border:0;background:var(--fiz);color:#fff;font-weight:600;text-decoration:none}
+.btn.ghost{background:var(--panel);color:var(--ink);border:1px solid var(--line)}
+.btn.hot{background:var(--hot)}
+.btn:disabled{opacity:.45;cursor:default}
+.btn:focus-visible,.seg button:focus-visible,.opt:focus-visible,a:focus-visible,input:focus-visible,.flip:focus-visible{outline:3px solid var(--hot);outline-offset:2px}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+/* home */
+.hero h1{max-width:16ch}
+.subjects{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:28px}
+.subj{position:relative;display:flex;flex-direction:column;border-radius:20px;overflow:hidden;color:#fff;text-decoration:none;min-height:300px;border:0;padding:0;text-align:left}
+.subj svg{display:block;width:100%;height:190px}
+.subj .t{padding:16px 20px 20px;display:flex;flex-direction:column;gap:4px;flex:1}
+.subj .t b{font-family:Unbounded,sans-serif;font-size:24px;font-weight:600}
+.subj.fiz{background:var(--band)}.subj.bio{background:color-mix(in srgb,var(--bio) 80%,#000)}.subj.geo{background:color-mix(in srgb,var(--geo) 80%,#000)}
+.subj.off{cursor:default}.subj.off .t span{opacity:.85}
+.bar{height:8px;border-radius:9px;background:color-mix(in srgb,currentColor 22%,transparent);overflow:hidden;margin-top:auto}
+.bar i{display:block;height:100%;background:currentColor;border-radius:9px}
+.next{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;margin-top:16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px}
+.card h3{margin-top:0}
+/* subject */
+.head{background:var(--band);color:#fff}
+.head .muted{color:#ffffffcc}
+.head .seg{background:#ffffff1f;border-color:#ffffff33}.head .seg button{color:#ffffffcc}.head .seg button.on{background:#fff;color:#1b2c94}
+.crumb{font-size:15px;color:#ffffffd9;margin-bottom:10px}
+.crumb a{color:#fff}
+.topics{display:flex;flex-direction:column;gap:10px}
+.trow{display:grid;grid-template-columns:44px minmax(0,1fr) 150px 84px;gap:14px;align-items:center;padding:14px 16px;border:1px solid var(--line);border-radius:16px;background:var(--bg);text-decoration:none;color:var(--ink)}
+.trow.soon{background:var(--panel);color:var(--muted)}.trow.soon .bar{visibility:hidden}.trow .tag{text-align:right}
+.dot{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-weight:700;border:2px solid var(--line);font-family:Unbounded,sans-serif;font-size:15px}
+.dot.done{background:var(--ok);border-color:var(--ok);color:#fff}
+.dot.go{border-color:var(--fiz);color:var(--fiz)}
+.trow .bar{color:var(--fiz);margin:0}
+.tag{font-size:14px;font-weight:600;white-space:nowrap}
+/* topic */
+.steps{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.steps a{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;border-radius:99px;background:#ffffff1f;color:#fff;text-decoration:none;font-weight:600;font-size:15px}
+.steps a.ok::before{content:"";width:10px;height:10px;border-radius:50%;background:#7dffb4}
+.two{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:clamp(20px,4vw,48px);align-items:start}
+.key{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px;position:sticky;top:84px}
+.formula{font-family:Unbounded,sans-serif;font-size:clamp(20px,2.4vw,26px);font-weight:600;color:var(--fiz);margin:.3em 0;white-space:nowrap;overflow-x:auto}
+.key svg{width:100%;height:auto;display:block}
+.trio{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;text-align:center;font-size:14px;font-weight:600}
+.trio span{display:block;font-weight:400;color:var(--muted);font-size:13px}
+table{border-collapse:collapse;width:100%;font-size:15px}
+td,th{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.states{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:6px;align-items:center;text-align:center;font-size:14px}
+.states svg{width:100%;max-width:110px;height:auto;margin:0 auto}
+.states .ar{color:var(--muted);font-size:13px;line-height:1.35}
+.sec{border-top:1px solid var(--line)}
+.sechead{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:12px;margin-bottom:18px}
+.pred{border:2px solid var(--hot);border-radius:18px;padding:18px 20px;margin-bottom:18px;background:color-mix(in srgb,var(--hot) 6%,var(--bg))}
+.pred h3{margin:0 0 .5em;color:var(--hot)}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opt{min-height:48px;padding:10px 16px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);text-align:left;font-weight:500;line-height:1.35}
+.opt.pick{border-color:var(--fiz);background:color-mix(in srgb,var(--fiz) 10%,var(--bg))}
+.opt.right{border-color:var(--ok);background:var(--ok-bg)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-bg)}
+.lab{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(280px,1fr);gap:18px;position:relative}
+.stage{display:flex;flex-direction:column;gap:12px}
+.fig{position:relative;min-height:320px;border-radius:18px;background:var(--panel);border:1px solid var(--line);overflow:hidden}
+.fig.g{min-height:220px;background:var(--bg)}
+.fig canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:pan-y}
+.cap{font-size:14px;color:var(--muted);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.ctl{display:flex;flex-direction:column;gap:14px}
+.ctl label{display:flex;justify-content:space-between;gap:10px;font-weight:600;font-size:15px}
+.ctl label output{font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--fiz)}
+.row{display:flex;flex-wrap:wrap;gap:8px}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:44px;background:transparent;margin:0;touch-action:pan-y}
+input[type=range]::-webkit-slider-runnable-track{height:8px;border-radius:8px;background:var(--panel2)}
+input[type=range]::-moz-range-track{height:8px;border-radius:8px;background:var(--panel2)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;border-radius:50%;background:var(--fiz);border:4px solid var(--bg);box-shadow:0 1px 4px #0005;margin-top:-11px}
+input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:var(--fiz);border:4px solid var(--bg);box-shadow:0 1px 4px #0005}
+input[type=range]:disabled{opacity:.4}
+.read{background:var(--panel);border-radius:16px;padding:16px 18px;font-size:15px;border:1px solid var(--line)}
+.big{font-family:Unbounded,sans-serif;font-weight:600;font-size:clamp(26px,3.4vw,38px);line-height:1.1;font-variant-numeric:tabular-nums}
+.eb{display:grid;grid-template-columns:minmax(0,9.5em) minmax(0,1fr) 4.6em;gap:8px;align-items:center;font-size:14px;margin:6px 0}
+.eb i{display:block;height:12px;border-radius:6px;background:var(--fiz);min-width:3px}
+.eb.hot i{background:var(--hot)}.eb.hot span{font-weight:700}
+.eb em{font-style:normal;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.leg{display:inline-flex;align-items:center;gap:6px}.leg::before{content:"";width:14px;height:4px;border-radius:2px;background:var(--c)}
+.reveal{border-radius:16px;padding:16px 18px;margin-top:4px}
+.reveal.r{background:var(--ok-bg)}.reveal.w{background:var(--bad-bg)}
+.reveal b{display:block;margin-bottom:4px}
+.lock{position:absolute;inset:0;z-index:2;display:grid;place-items:center;background:color-mix(in srgb,var(--bg) 78%,transparent);backdrop-filter:blur(3px);border-radius:18px;text-align:center;padding:20px;font-weight:600}
+.stages{display:flex;flex-wrap:wrap;gap:6px;font-size:14px}
+.stages span{padding:6px 10px;border-radius:10px;background:var(--panel);border:1px solid var(--line);white-space:nowrap}
+.stages span.on{background:var(--fiz);color:#fff;border-color:var(--fiz)}
+.tasks{display:flex;flex-direction:column;gap:14px;max-width:820px}
+.task{border:1px solid var(--line);border-radius:18px;padding:18px 20px;background:var(--bg)}
+.task.done{border-color:var(--ok)}
+.task .q{font-weight:600;margin:0 0 12px}
+.task .n{color:var(--muted);font-size:14px;font-weight:600}
+.ans{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.ans input{font:inherit;font-size:max(16px,1rem);width:9em;min-height:48px;padding:0 12px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink)}
+.fb{margin-top:12px;border-radius:12px;padding:12px 14px;font-size:15px}
+.fb.r{background:var(--ok-bg)}.fb.w{background:var(--bad-bg)}.fb.h{background:var(--hint)}
+.fb.p{background:var(--panel2)}
+.tools{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.tools button{background:none;border:1px solid var(--line);border-radius:10px;min-height:40px;padding:0 12px;font-size:14px;font-weight:600;color:var(--muted)}
+.score{display:flex;align-items:center;gap:12px;font-weight:600}
+.score .bar{width:160px;color:var(--ok);margin:0}
+.foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
+/* review */
+.deck{display:grid;place-items:center;gap:18px;padding-block:10px}
+.flip{width:min(560px,100%);min-height:300px;border-radius:24px;border:0;padding:28px;background:var(--band);color:#fff;display:flex;flex-direction:column;justify-content:center;gap:12px;text-align:center;touch-action:pan-y;user-select:none;transition:transform .25s}
+.flip.back{background:var(--bg);color:var(--ink);border:2px solid var(--fiz)}
+.flip .f{font-family:Unbounded,sans-serif;font-size:clamp(22px,3vw,30px);font-weight:600;line-height:1.15}
+.flip .b{font-size:1.1rem;line-height:1.5}
+.flip small{opacity:.75;font-size:14px}
+.deck .row{justify-content:center}
+/* progress */
+.prog{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:24px;align-items:start}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(9em,1fr));gap:12px;margin-bottom:20px}
+.stat{background:var(--panel);border-radius:16px;padding:14px 16px}
+.stat b{display:block;font-family:Unbounded,sans-serif;font-size:30px;font-weight:600}
+.pr{display:grid;grid-template-columns:minmax(0,1fr) 120px 48px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.pr .bar{color:var(--fiz);margin:0}
+.pr .n{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.badge{border-radius:16px;padding:14px;border:1px dashed var(--line);color:var(--muted);font-size:14px}
+.badge svg{width:40px;height:40px;display:block;margin-bottom:6px}
+.badge.got{border:1px solid var(--hot);color:var(--ink);background:color-mix(in srgb,var(--hot) 8%,var(--bg))}
+.badge b{display:block;font-size:15px}
+.modal{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:#0008;padding:16px}
+.modal .card{max-width:420px;background:var(--bg)}
+@media(max-width:900px){.lab{grid-template-columns:minmax(0,1fr)}.subjects{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.subj.fiz{grid-column:1/-1}.key{position:static}}
+@media(max-width:720px){.two,.prog,.next{grid-template-columns:minmax(0,1fr)}.trow{grid-template-columns:44px minmax(0,1fr) auto}.trow .bar{display:none}}
+@media(max-width:600px){.subjects{grid-template-columns:minmax(0,1fr)}.subj{min-height:0}.subj svg{height:150px}.fig{min-height:260px}.states{grid-template-columns:minmax(0,1fr)}.states .ar{padding:2px 0}.pr{grid-template-columns:minmax(0,1fr) 80px 44px}.top .wrap{gap:4px 8px}.nav a{padding:0 9px}.chip.pts{display:none}}
+@media(prefers-reduced-motion:reduce){.flip{transition:none}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <button class="brand" data-go="" aria-label="Pradžia">Mokausi<i>.</i></button>
+  <nav class="nav" id="nav">
+    <a href="#fizika" data-n="fizika">Fizika</a>
+    <a href="#kartojimas" data-n="kartojimas">Kartojimas <span class="count" id="due">0</span></a>
+    <a href="#progresas" data-n="progresas">Progresas</a>
+  </nav>
+  <span class="sp"></span>
+  <span class="chip pts" id="pts"></span>
+  <div class="seg" role="group" aria-label="Mokymosi režimas">
+    <button id="mKartu" data-mode="kartu">Kartu</button>
+    <button id="mVienas" data-mode="vienas">Vienas</button>
+  </div>
+</div></header>
+<main id="app"></main>
+<i id="probe" style="display:none"></i>
+<script>
+{
+const $=(s,r=document)=>r.querySelector(s);
+const app=$('#app');
+const nf=(v,d=0)=>Number(v).toLocaleString('lt-LT',{minimumFractionDigits:d,maximumFractionDigits:d});
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const todayStr=(o=0)=>{const d=new Date();d.setDate(d.getDate()+o);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+
+/* ---------- content ---------- */
+const SEM={1:[
+ {id:'vidine-energija',n:'Vidinė energija ir šilumos perdavimas'},
+ {id:'silumos-kiekis',n:'Šilumos kiekis ir savitoji šiluminė talpa'},
+ {id:'busenu-kitimas',n:'Medžiagos būsenų kitimas'},
+ {id:'kuro-siluma',n:'Kuro degimo šiluma'},{id:'silumos-balansas',n:'Šilumos balanso lygtis'},{id:'varikliai',n:'Vidaus degimo variklis ir garo turbina'},{id:'judejimas',n:'Mechaninis judėjimas'}],
+ 2:[{n:'Jėgos'},{n:'Sąveikos dėsniai'},{n:'Slėgis'},{n:'Mechaninis darbas ir galia'},{n:'Mechaninė energija'},{n:'Paprastieji mechanizmai'}]};
+
+const SVG_TRANSFER=`<svg viewBox="0 0 360 120" aria-hidden="true">
+<g><path d="M18 52h66l-7 52a8 8 0 0 1-8 7H33a8 8 0 0 1-8-7z" fill="var(--panel2)" stroke="var(--ink)" stroke-width="2"/>
+<path d="M22 66h58l-5 38a6 6 0 0 1-6 5H33a6 6 0 0 1-6-5z" fill="var(--hot)" opacity=".75"/>
+<defs><linearGradient id="sp" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="var(--hot)"/><stop offset="1" stop-color="var(--cold)"/></linearGradient></defs>
+<path d="M45 96 L100 14" stroke="url(#sp)" stroke-width="7" stroke-linecap="round"/></g>
+<g transform="translate(130 0)"><rect x="8" y="30" width="84" height="66" rx="8" fill="var(--panel2)" stroke="var(--ink)" stroke-width="2"/>
+<path d="M30 84c-10-14-10-34 0-44" fill="none" stroke="var(--hot)" stroke-width="3"/><path d="M27 44l4-6 4 7" fill="none" stroke="var(--hot)" stroke-width="3"/>
+<path d="M70 40c10 14 10 34 0 44" fill="none" stroke="var(--cold)" stroke-width="3"/><path d="M73 80l-4 6-4-7" fill="none" stroke="var(--cold)" stroke-width="3"/>
+<path d="M36 112c-4-8 4-10 2-16 8 4 10 10 6 16zM58 112c-4-8 4-10 2-16 8 4 10 10 6 16z" fill="var(--hot)"/></g>
+<g transform="translate(250 0)"><circle cx="30" cy="34" r="20" fill="#ffb21f"/>
+<g stroke="#ffb21f" stroke-width="3" stroke-linecap="round"><path d="M30 4v6M30 58v6M0 34h6M54 34h6M9 13l4 4M47 51l4 4M51 13l-4 4"/></g>
+<path d="M50 60q6 6 12 0t12 0 12 0M44 74q6 6 12 0t12 0 12 0" fill="none" stroke="var(--hot)" stroke-width="2.5"/>
+<rect x="60" y="92" width="44" height="18" rx="4" fill="var(--bio)"/></g></svg>`;
+
+const SVG_STATES=[
+ `<svg viewBox="0 0 100 80"><rect x="2" y="2" width="96" height="76" rx="8" fill="var(--panel2)"/>${Array.from({length:15},(_,i)=>`<circle cx="${22+(i%5)*14}" cy="${26+Math.floor(i/5)*14}" r="6" fill="var(--cold)"/>`).join('')}</svg>`,
+ `<svg viewBox="0 0 100 80"><rect x="2" y="2" width="96" height="76" rx="8" fill="var(--panel2)"/>${[[18,62],[32,66],[46,60],[60,66],[74,62],[86,64],[24,50],[40,48],[54,52],[68,48],[82,52],[30,36],[62,38]].map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="6" fill="#7b6cf0"/>`).join('')}</svg>`,
+ `<svg viewBox="0 0 100 80"><rect x="2" y="2" width="96" height="76" rx="8" fill="var(--panel2)"/>${[[16,18],[50,14],[82,24],[30,44],[70,48],[18,66],[52,64],[86,62]].map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="6" fill="var(--hot)"/>`).join('')}</svg>`];
+
+const TOPICS={
+'vidine-energija':{n:'Vidinė energija ir šilumos perdavimas',
+ lead:'Kodėl karšta arbata atvėsta, o šaukštas joje įkaista? Viskas prasideda nuo mažyčių dalelių judėjimo.',
+ ex:`<h3>Dalelės nuolat juda</h3><p>Visos medžiagos sudarytos iš dalelių – atomų ir molekulių. Jos nuolat netvarkingai juda: tai <b>šiluminis judėjimas</b>. Kuo aukštesnė temperatūra, tuo greičiau dalelės juda.</p>
+<h3>Vidinė energija</h3><p><b>Vidinė energija</b> – visų kūno dalelių judėjimo ir sąveikos energija. Karštesnis kūnas turi daugiau vidinės energijos nei toks pat, bet šaltesnis.</p>
+<p>Ją galima pakeisti dviem būdais: <b>atliekant darbą</b> (trinant delnus, pumpuojant padangą) arba <b>perduodant šilumą</b> (puodas ant viryklės).</p>
+<h3>Šiluma teka iš karšto į šaltą</h3><p>Kai du kūnai liečiasi, šiluma savaime pereina iš karštesnio į šaltesnį, kol temperatūros susilygina. Tada sakome, kad nusistovėjo <b>šiluminė pusiausvyra</b>.</p>
+<h3>Trys perdavimo būdai</h3><p><b>Laidumas</b> – per kietą kūną: dalelės perduoda judėjimą kaimynėms. <b>Konvekcija</b> – skysčiuose ir dujose: šiltesnis, lengvesnis srautas kyla, šaltesnis leidžiasi. <b>Spinduliavimas</b> – be dalelių, net per tuščią erdvę, kaip Saulės ar laužo šiluma.</p>`,
+ key:`<h3>Svarbiausia</h3><div class="formula">karštas → šaltas</div><p class="small muted">Šiluma savaime teka tik ta kryptimi.</p>${SVG_TRANSFER}<div class="trio"><div>Laidumas<span>šaukštas arbatoje</span></div><div>Konvekcija<span>vanduo puode</span></div><div>Spinduliavimas<span>Saulės šiluma</span></div></div>
+<h3>Sumaišius tą pačią medžiagą</h3><div class="formula">t = (m₁t₁ + m₂t₂) / (m₁ + m₂)</div><p class="small muted">Jei šiluma niekur nepabėga.</p>`,
+ pred:{q:'Suglausime 1 kg 80 °C ir 1 kg 10 °C kūnus iš to paties metalo. Kokia temperatūra nusistovės?',o:['Apie 10 °C','Apie 45 °C','Apie 80 °C','Apie 90 °C'],a:1,
+  why:'Šiluma tekėjo iš karšto kūno į šaltą, kol temperatūros susilygino. Masės vienodos, todėl rezultatas per vidurį: 45 °C.',talk:'Aptarkite: kas pasikeis, jei šaltasis kūnas bus 3 kg? Pirma spėkite, tada išbandykite.'},
+ tasks:[
+ {q:'Ką daro kūno dalelės, kai kūną kaitiname?',o:['Juda greičiau','Sustoja','Jų padaugėja','Tampa sunkesnės'],a:0,ex:'Kuo aukštesnė temperatūra, tuo greičiau dalelės juda. Jų skaičius ir masė nesikeičia.',h:'Prisimink bandymą: kaip judėjo karšto kūno dalelės?',p:'Atsakymas: juda greičiau. Paklausk, kas nutinka dalelėms šaldiklyje.'},
+ {q:'Metalinis šaukštas karštoje arbatoje greitai įkaista, net ir jo galas. Koks tai šilumos perdavimo būdas?',o:['Laidumas','Konvekcija','Spinduliavimas'],a:0,ex:'Šaukšto dalelės perduoda judėjimą kaimynėms, ir šiluma keliauja per kietą kūną. Tai laidumas.',h:'Ar šaukštas teka? Ar šiluma keliauja per patį šaukštą?',p:'Laidumas. Gera proga paklausti, kodėl puodų rankenos daromos iš plastiko ar medžio.'},
+ {q:'Kodėl radiatoriai dažniausiai montuojami apačioje, po langu?',o:['Šiltas oras kyla aukštyn ir sušildo visą kambarį','Šiltas oras leidžiasi žemyn','Taip tiesiog gražiau','Prie grindų šilumos nereikia'],a:0,ex:'Sušilęs oras plečiasi, tampa lengvesnis ir kyla, o vėsesnis leidžiasi. Susidaro srautai – tai konvekcija.',h:'Kur kambaryje šilčiau: prie lubų ar prie grindų?',p:'Konvekcija. Virš įjungto radiatoriaus palaikykite popieriaus juostelę: ji plazdės nuo kylančio oro.'},
+ {q:'Kaip Saulės šiluma pasiekia Žemę, nors tarp jų beveik tuščia erdvė?',o:['Spinduliavimu','Laidumu','Konvekcija'],a:0,ex:'Laidumui ir konvekcijai reikia dalelių. Spinduliavimas sklinda ir per tuščią erdvę.',h:'Kuriam būdui nereikia jokių dalelių?',p:'Spinduliavimu. Kasdienis pavyzdys: laužo šilumą jaučiame veidu, nors oras aplink vėsus.'},
+ {q:'Sumaišėme 1 kg 80 °C vandens ir 1 kg 20 °C vandens. Kokia bus mišinio temperatūra?',num:50,tol:.5,u:'°C',ex:'Masės vienodos, todėl temperatūra bus per vidurį: (1·80 + 1·20) / (1 + 1) = 50 °C.',h:'Kai masės vienodos, galutinė temperatūra yra tiksliai per vidurį.',p:'50 °C. Galima patikrinti bandyme: 80 °C ir 20 °C, abu po 1 kg.'},
+ {q:'Sumaišėme 2 kg 10 °C vandens ir 1 kg 70 °C vandens. Kokia bus mišinio temperatūra?',num:30,tol:.5,u:'°C',ex:'(2·10 + 1·70) / (2 + 1) = 90 / 3 = 30 °C. Šalto vandens daugiau, todėl rezultatas arčiau 10 °C.',h:'Naudok formulę t = (m₁t₁ + m₂t₂) / (m₁ + m₂).',p:'30 °C. Svarbi mintis: kurio vandens daugiau, prie to temperatūros rezultatas arčiau.'},
+ {q:'Trini delnus ir jie sušyla. Kaip pasikeitė delnų vidinė energija?',o:['Padidėjo, nes atliktas darbas','Padidėjo, nes šiluma atėjo iš oro','Nepasikeitė','Sumažėjo'],a:0,ex:'Trinant atliekamas darbas, ir jis padidina vidinę energiją. Šiluma iš karštesnio kūno čia neperduodama.',h:'Yra du vidinės energijos keitimo būdai: darbas ir šilumos perdavimas.',p:'Padidėjo atliekant darbą. Kitas pavyzdys: pumpuojant dviračio padangą įkaista pompa.'}],
+ cards:[['Šiluminis judėjimas','Nuolatinis netvarkingas dalelių judėjimas. Kuo aukštesnė temperatūra, tuo greičiau dalelės juda.'],
+ ['Vidinė energija','Visų kūno dalelių judėjimo ir sąveikos energija. Keičiama darbu arba šilumos perdavimu.'],
+ ['Laidumas','Šiluma keliauja per kūną, dalelėms perduodant judėjimą kaimynėms. Pvz., šaukštas arbatoje.'],
+ ['Konvekcija','Šilumos perdavimas skysčių ar dujų srautais: šiltas kyla, šaltas leidžiasi.'],
+ ['Spinduliavimas','Šilumos perdavimas be dalelių, net per tuščią erdvę. Pvz., Saulės šiluma.']]},
+'silumos-kiekis':{n:'Šilumos kiekis ir savitoji šiluminė talpa',
+ lead:'Kodėl virdulys užverda per kelias minutes, o keptuvė įkaista akimirksniu? Atsakymas – savitoji šiluminė talpa.',
+ ex:`<h3>Šilumos kiekis Q</h3><p><b>Šilumos kiekis</b> – energija, kurią kūnas gauna arba atiduoda perduodant šilumą. Matuojamas <b>džauliais (J)</b>; 1 kJ = 1000 J.</p>
+<h3>Nuo ko priklauso</h3><p>Kiek šilumos reikia kūnui sušildyti, priklauso nuo trijų dalykų: kūno <b>masės</b>, <b>temperatūros pokyčio</b> ir <b>medžiagos</b>.</p>
+<h3>Savitoji šiluminė talpa c</h3><p>Rodo, kiek šilumos reikia <b>1 kg</b> medžiagos sušildyti <b>1 °C</b>. Vienetas – J/(kg·°C). Vandens c labai didelė, todėl vanduo lėtai šyla ir lėtai vėsta. Dėl to jūra vasarą vėsesnė už smėlį, o rudenį – šiltesnė.</p>
+<h3>Kaitintuvo galia</h3><p>Kaitintuvas, kurio galia <b>P</b> vatų, kas sekundę atiduoda P džaulių. Per laiką t: <b>Q = P·t</b> (jei šiluma niekur nepabėga).</p>`,
+ key:`<h3>Svarbiausia</h3><div class="formula">Q = c·m·Δt</div><p class="small muted">Δt = t₂ − t₁ (galutinė minus pradinė)</p>
+<table><thead><tr><th>Medžiaga</th><th class="n">c, J/(kg·°C)</th></tr></thead><tbody>
+<tr><td>Vanduo</td><td class="n">4 200</td></tr><tr><td>Ledas</td><td class="n">2 100</td></tr><tr><td>Aliejus</td><td class="n">apie 1 700</td></tr><tr><td>Aliuminis</td><td class="n">920</td></tr><tr><td>Geležis</td><td class="n">460</td></tr><tr><td>Varis</td><td class="n">400</td></tr></tbody></table>
+<p class="small muted">Vertės apytikslės; vadovėlyje jos gali šiek tiek skirtis.</p><div class="formula">Q = P·t</div>`,
+ pred:{q:'Ta pati kaitlentė. Kas greičiau įkais iki 100 °C: 1 kg vandens ar 1 kg geležies?',o:['Vanduo','Geležis','Vienodai'],a:1,
+  why:'Geležies savitoji šiluminė talpa (460) apie 9 kartus mažesnė nei vandens (4200), todėl jai sušildyti reikia daug mažiau šilumos.',talk:'Aptarkite: kodėl vasarą jūra šyla lėčiau nei paplūdimio smėlis?'},
+ tasks:[
+ {q:'Ką rodo savitoji šiluminė talpa c?',o:['Kiek šilumos reikia 1 kg medžiagos sušildyti 1 °C','Kokioje temperatūroje medžiaga verda','Kiek medžiaga sveria','Kaip greitai medžiaga atvėsta per sekundę'],a:0,ex:'c parodo, kiek džaulių reikia 1 kg medžiagos temperatūrai pakelti 1 °C.',h:'Pažiūrėk į vienetą: J/(kg·°C).',p:'Pirmas variantas. Paprašyk pasakyti savais žodžiais, ką reiškia vandens 4200.'},
+ {q:'Kiek šilumos reikia 2 kg vandens sušildyti nuo 20 °C iki 70 °C? Atsakymą parašyk kilodžauliais.',num:420,tol:1,u:'kJ',ex:'Q = c·m·Δt = 4200 · 2 · 50 = 420 000 J = 420 kJ.',h:'Δt = 70 − 20 = 50 °C. 1 kJ = 1000 J.',p:'420 kJ. Dažna klaida: į formulę įrašyti 70, o ne Δt = 50.'},
+ {q:'Kiek šilumos reikia 0,5 kg aliuminio sušildyti 40 °C? (c = 920 J/(kg·°C)) Atsakymą parašyk džauliais.',num:18400,tol:5,u:'J',ex:'Q = 920 · 0,5 · 40 = 18 400 J.',h:'Čia Δt jau duota: 40 °C.',p:'18 400 J (18,4 kJ).'},
+ {q:'Kodėl vasarą paplūdimyje smėlis įkaista greitai, o jūros vanduo – lėtai?',o:['Vandens savitoji šiluminė talpa daug didesnė','Ant vandens šviečia mažiau saulės','Vanduo visada šaltas','Smėlio dalelės sunkesnės'],a:0,ex:'Vandeniui sušildyti 1 °C reikia maždaug 5 kartus daugiau šilumos nei smėliui, todėl jis šyla ir vėsta lėtai.',h:'Prisimink lentelę: kurios medžiagos c didžiausia?',p:'Dėl didelės vandens c. Todėl prie jūros klimatas švelnesnis: vasarą vėsiau, žiemą šilčiau.'},
+ {q:'2000 W virdulys šildo 1 kg vandens nuo 20 °C iki 100 °C. Per kiek sekundžių vanduo užvirs, jei šiluma niekur nepabėga?',num:168,tol:1,u:'s',ex:'Q = 4200 · 1 · 80 = 336 000 J. Virdulys kas sekundę atiduoda 2000 J, todėl t = 336 000 / 2000 = 168 s (beveik 3 min).',h:'Pirma apskaičiuok Q, paskui t = Q / P.',p:'168 s. Galite patikrinti savo virdulį: tikrasis laikas bus kiek ilgesnis, nes dalis šilumos pabėga.'},
+ {q:'Ta pati kaitlentė šildo 1 kg vandens ir 1 kg geležies. Kuri įkais iki 100 °C greičiau ir maždaug kiek kartų?',o:['Geležis, apie 9 kartus greičiau','Vanduo, apie 2 kartus greičiau','Abu vienodai','Geležis, apie 2 kartus greičiau'],a:0,ex:'4200 / 460 ≈ 9. Geležiai sušildyti reikia apie 9 kartus mažiau šilumos.',h:'Padalink vandens c iš geležies c.',p:'Geležis, apie 9 kartus. Bandyme tai matyti grafike.'}],
+ cards:[['Q = c·m·Δt','Šilumos kiekis = savitoji šiluminė talpa × masė × temperatūros pokytis. Q matuojamas džauliais.'],
+ ['Savitoji šiluminė talpa c','Kiek šilumos reikia 1 kg medžiagos sušildyti 1 °C. Vienetas J/(kg·°C).'],
+ ['Vandens c','4200 J/(kg·°C) – viena didžiausių. Todėl vanduo lėtai šyla ir lėtai vėsta.'],
+ ['Q = P·t','Kaitintuvas, kurio galia P vatų, per t sekundžių atiduoda P·t džaulių šilumos.']]},
+'busenu-kitimas':{n:'Medžiagos būsenų kitimas',
+ lead:'Ledas, vanduo ir garai – ta pati medžiaga. Pažiūrėkime, kur dingsta šiluma, kai ledas tirpsta, o vanduo verda.',
+ ex:`<h3>Trys būsenos</h3><p>Medžiaga gali būti <b>kieta</b>, <b>skysta</b> arba <b>dujinė</b>. Kietame kūne dalelės tvarkingai išsidėsčiusios ir tik virpa, skystyje juda viena šalia kitos, dujose laisvai lekia.</p>
+<h3>Lydymasis ir kietėjimas</h3><p><b>Lydymasis</b> (kieta → skysta) vyksta lydymosi temperatūroje; ledo ji 0 °C. Kol medžiaga lydosi, temperatūra <b>nekinta</b>, nors šiluma tiekiama: ji ardo kristalų gardelę. Šilumos kiekis: <b>Q = λ·m</b>, čia λ – lydymosi šiluma. <b>Kietėjant</b> tiek pat šilumos išsiskiria.</p>
+<h3>Garavimas ir virimas</h3><p><b>Garavimas</b> vyksta nuo skysčio paviršiaus bet kokioje temperatūroje, ir garuojantis skystis vėsta. <b>Virimas</b> – garavimas visame skysčio tūryje; vyksta virimo temperatūroje (vanduo prie įprasto slėgio – 100 °C), o temperatūra tuo metu nekinta. Garinimui reikia <b>Q = L·m</b>, čia L – garavimo šiluma.</p>
+<h3>Kondensacija</h3><p>Garai virsta skysčiu, ir išsiskiria tiek pat šilumos, kiek buvo sunaudota garinimui. Taip atsiranda rasa ir lašeliai ant šalto lango.</p>`,
+ key:`<h3>Svarbiausia</h3><div class="states"><div>${SVG_STATES[0]}Kieta</div><div class="ar">lydymasis →<br>← kietėjimas</div><div>${SVG_STATES[1]}Skysta</div><div class="ar">garavimas →<br>← kondensacija</div><div>${SVG_STATES[2]}Dujos</div></div>
+<div class="formula">Q = λ·m</div><p class="small muted">Ledo λ ≈ 334 kJ/kg (vadovėlyje gali būti 3,3·10⁵ arba 3,4·10⁵ J/kg)</p>
+<div class="formula">Q = L·m</div><p class="small muted">Vandens L ≈ 2300 kJ/kg (2,3·10⁶ J/kg)</p>`,
+ pred:{q:'Kaitiname tirpstantį ledą. Ką rodys termometras, kol tirps ledas?',o:['Temperatūra kils','Temperatūra nesikeis','Temperatūra kris'],a:1,
+  why:'Kol ledas tirpsta, visa šiluma ardo kristalų gardelę, todėl temperatūra lieka 0 °C. Taip pat ir verdant: 100 °C.',talk:'Aptarkite: kodėl sumažinus ugnį po verdančiu puodu vanduo vis tiek lieka 100 °C?'},
+ tasks:[
+ {q:'Ledas tirpsta, o mes vis kaitiname. Ką rodo termometras, kol ištirps visas ledas?',o:['0 °C – temperatūra nesikeičia','Temperatūra pamažu kyla','Temperatūra krenta'],a:0,ex:'Visa gaunama šiluma ardo ledo kristalus, todėl temperatūra lieka 0 °C, kol ištirps visas ledas.',h:'Pažiūrėk į grafiką bandyme: ar yra lygių vietų?',p:'0 °C. Grafike tai horizontali atkarpa.'},
+ {q:'Kiek šilumos reikia 2 kg 0 °C ledo ištirpdyti? (λ = 334 kJ/kg) Atsakymą parašyk kJ.',num:668,tol:1,u:'kJ',ex:'Q = λ·m = 334 · 2 = 668 kJ.',h:'Temperatūra nekinta, todėl naudok Q = λ·m.',p:'668 kJ.'},
+ {q:'Kuo garavimas skiriasi nuo virimo?',o:['Garavimas vyksta bet kokioje temperatūroje nuo paviršiaus, virimas – virimo temperatūroje visame tūryje','Garavimas vyksta tik 100 °C temperatūroje','Tai tas pats','Virimas vyksta tik paviršiuje'],a:0,ex:'Bala išdžiūsta ir vėsią dieną – tai garavimas. Virimas vyksta tik virimo temperatūroje, burbulai kyla iš viso skysčio tūrio.',h:'Pagalvok apie balą po lietaus.',p:'Pirmas variantas. Pavyzdys: skalbiniai išdžiūsta ir be virimo.'},
+ {q:'Kodėl išlipus iš vandens vėjuotą dieną būna šalta?',o:['Garuojantis vanduo atima šilumą iš odos','Vanduo atšaldo orą','Vėjas atneša šaltį iš jūros','Šlapia oda sunkiau įšyla nuo saulės'],a:0,ex:'Garuoti vandeniui reikia šilumos, ir jis ją paima iš odos. Vėjas garavimą dar paspartina.',h:'Garavimui reikia šilumos. Iš kur ji paimama?',p:'Garuojantis vanduo atima šilumą. Tas pats principas – prakaitavimas.'},
+ {q:'Kiek šilumos reikia 0,5 kg 100 °C vandens paversti garais? (L = 2300 kJ/kg) Atsakymą parašyk kJ.',num:1150,tol:1,u:'kJ',ex:'Q = L·m = 2300 · 0,5 = 1150 kJ.',h:'Naudok Q = L·m.',p:'1150 kJ.'},
+ {q:'Ant šalto lango vandens garai virsta lašeliais. Kas tai?',o:['Kondensacija, šiluma išsiskiria','Kondensacija, šiluma sugeriama','Garavimas, šiluma išsiskiria','Lydymasis'],a:0,ex:'Garai virsta skysčiu – kondensuojasi. Tada išsiskiria tiek pat šilumos, kiek reikėjo garinimui.',h:'Tai atvirkščias garavimui procesas.',p:'Kondensacija; šiluma išsiskiria.'},
+ {q:'Bandyme 1 kg ledo pavertėme garais. Kuriam etapui reikėjo daugiausia šilumos?',o:['Virimui','Ledo tirpimui','Vandens šildymui nuo 0 iki 100 °C','Ledo šildymui iki 0 °C'],a:0,ex:'Garinimui reikėjo 2300 kJ – daugiau nei visiems kitiems etapams kartu (796 kJ).',h:'Pažiūrėk į etapų sąrašą po grafiku.',p:'Virimui. Todėl virdulys ilgai „kunkuliuoja“, kol vanduo išgaruoja.'}],
+ cards:[['Lydymasis','Kieta → skysta. Vyksta lydymosi temperatūroje, temperatūra nekinta. Q = λ·m.'],
+ ['Ledo lydymosi šiluma λ','Apie 334 kJ/kg – tiek šilumos reikia 1 kg 0 °C ledo ištirpdyti.'],
+ ['Garavimas ir virimas','Garavimas – nuo paviršiaus bet kokioje temperatūroje. Virimas – visame tūryje, virimo temperatūroje.'],
+ ['Vandens garavimo šiluma L','Apie 2300 kJ/kg. Q = L·m.'],
+ ['Kondensacija ir kietėjimas','Garai → skystis, skystis → kieta. Šiluma išsiskiria.']]},
+'kuro-siluma':{n:'Kuro degimo šiluma',
+ lead:'Kodėl automobiliui užtenka kelių dešimčių litrų benzino, o laužui reikia glėbio malkų? Skirtingas kuras išskiria labai skirtingą šilumos kiekį.',
+ ex:`<h3>Degant išsiskiria energija</h3><p><b>Kuras</b> – medžiaga, kuri degdama išskiria daug šilumos: malkos, anglis, dujos, benzinas. Degimas – cheminė reakcija su deguonimi; jos metu kuro energija virsta šiluma.</p>
+<h3>Savitoji degimo šiluma q</h3><p>Rodo, kiek šilumos išsiskiria visiškai sudegus <b>1 kg</b> kuro. Vienetas – J/kg; patogu skaičiuoti megadžauliais: 1 MJ = 1 000 000 J. Visas šilumos kiekis: <b>Q = q·m</b>.</p>
+<h3>Ne visa šiluma panaudojama</h3><p>Šildant puodą, dalis šilumos sušildo orą ir patį puodą, dalis išeina su dūmais. Kokia šilumos dalis atitenka tam, ką norime sušildyti, rodo <b>naudingumo koeficientas</b> η (eta): <b>η = Q naudinga / Q visa · 100 %</b>.</p>
+<h3>Kuras ir aplinka</h3><p>Deginant anglį, naftos produktus ir gamtines dujas į orą patenka anglies dioksido, kuris šiltina klimatą. Vandenilis degdamas virsta vandeniu, bet jam pagaminti reikia daug energijos.</p>`,
+ key:`<h3>Svarbiausia</h3><div class="formula">Q = q·m</div>
+<table><thead><tr><th>Kuras</th><th class="n">q, MJ/kg</th></tr></thead><tbody>
+<tr><td>Sausos malkos</td><td class="n">apie 10</td></tr><tr><td>Spiritas</td><td class="n">27</td></tr><tr><td>Akmens anglis</td><td class="n">apie 27</td></tr><tr><td>Gamtinės dujos</td><td class="n">44</td></tr><tr><td>Benzinas</td><td class="n">46</td></tr><tr><td>Vandenilis</td><td class="n">120</td></tr></tbody></table>
+<p class="small muted">Vertės apytikslės; vadovėlyje jos gali šiek tiek skirtis.</p><div class="formula">η = Q naud. / Q · 100 %</div>`,
+ pred:{q:'Sudeginame po 10 g kiekvieno kuro. Kuris išskirs daugiausia šilumos?',o:['Sausos malkos','Benzinas','Vandenilis','Visi vienodai'],a:2,
+  why:'Vandenilio savitoji degimo šiluma apie 120 MJ/kg – beveik 3 kartus didesnė nei benzino ir 12 kartų didesnė nei malkų.',talk:'Aptarkite: jei vandenilis toks „galingas“, kodėl automobiliai dažniausiai važiuoja benzinu, dyzelinu ar elektra?'},
+ tasks:[
+ {q:'Ką rodo kuro savitoji degimo šiluma q?',o:['Kiek šilumos išsiskiria visiškai sudegus 1 kg kuro','Kokioje temperatūroje kuras užsiliepsnoja','Kiek kuras sveria','Kiek laiko dega 1 kg kuro'],a:0,ex:'q – šilumos kiekis, išsiskiriantis visiškai sudegus 1 kg kuro. Vienetas J/kg.',h:'Pažiūrėk į vienetą: J/kg.',p:'Pirmas variantas. Paprašyk palyginti benziną ir malkas pagal lentelę.'},
+ {q:'Kiek šilumos išsiskiria sudegus 2 kg sausų malkų? (q = 10 MJ/kg) Atsakymą parašyk MJ.',num:20,tol:.1,u:'MJ',ex:'Q = q·m = 10 · 2 = 20 MJ (20 000 000 J).',h:'Q = q·m.',p:'20 MJ.'},
+ {q:'Kiek šilumos išsiskiria sudegus 50 g benzino? (q = 46 MJ/kg) Atsakymą parašyk MJ.',num:2.3,tol:.01,u:'MJ',ex:'50 g = 0,05 kg. Q = 46 · 0,05 = 2,3 MJ.',h:'Pirmiausia gramus paversk kilogramais: 50 g = 0,05 kg.',p:'2,3 MJ. Dažna klaida – nepaversti gramų kilogramais.'},
+ {q:'Kodėl šildant puodą ant laužo vandeniui atitenka tik dalis kuro šilumos?',o:['Dalis šilumos sušildo orą, puodą ir išeina su dūmais','Dalis kuro virsta vandeniu','Ugnis šildo tik iš viršaus','Šiluma dingsta be pėdsakų'],a:0,ex:'Energija niekur nedingsta, bet didelė jos dalis atitenka ne vandeniui, o aplinkai. Todėl naudingumo koeficientas mažesnis nei 100 %.',h:'Pagalvok, kas aplink laužą dar sušyla.',p:'Pirmas variantas. Svarbi mintis: energija nedingsta, tik atitenka ne ten, kur norime.'},
+ {q:'Sudegus kurui išsiskyrė 4 MJ šilumos, o vanduo gavo 1 MJ. Koks naudingumo koeficientas procentais?',num:25,tol:.5,u:'%',ex:'η = 1 / 4 · 100 % = 25 %.',h:'η = Q naudinga / Q visa · 100 %.',p:'25 %.'},
+ {q:'Kiek kartų daugiau šilumos išsiskiria sudegus 1 kg benzino nei 1 kg sausų malkų?',o:['Apie 4,6 karto','Apie 2 kartus','Vienodai','Apie 10 kartų'],a:0,ex:'46 / 10 = 4,6.',h:'Padalink savitąsias degimo šilumas.',p:'Apie 4,6 karto.'}],
+ cards:[['Q = q·m','Kuro degimo šiluma = savitoji degimo šiluma × kuro masė.'],
+ ['Savitoji degimo šiluma q','Kiek šilumos išsiskiria visiškai sudegus 1 kg kuro (J/kg). Benzino ≈ 46 MJ/kg, malkų ≈ 10 MJ/kg.'],
+ ['Naudingumo koeficientas η','Kokia šilumos dalis panaudojama naudingai: η = Q naudinga / Q visa · 100 %.'],
+ ['1 MJ','Megadžaulis = 1 000 000 J.']]},
+'silumos-balansas':{n:'Šilumos balanso lygtis',
+ lead:'Įmetus karštą metalą į šaltą vandenį, kiek sušils vanduo? Užtenka vienos lygties: kiek šilumos vienas kūnas atidavė, tiek kitas gavo.',
+ ex:`<h3>Energija nedingsta</h3><p>Kai karštas ir šaltas kūnai liečiasi, karštasis atiduoda šilumą, šaltasis ją gauna, kol temperatūros susilygina. Jei šiluma nepabėga į aplinką, <b>kiek vienas atidavė, tiek kitas gavo</b>.</p>
+<h3>Šilumos balanso lygtis</h3><p><b>Q atiduotas = Q gautas</b>. Abu kiekius skaičiuojame pagal Q = c·m·Δt. Karštajam kūnui Δt = t₁ − t, šaltajam Δt = t − t₂; čia t – galutinė temperatūra.</p>
+<h3>Kaip spręsti uždavinį</h3><p>Pirma nustatyk, kuris kūnas šilumą atiduoda, o kuris gauna. Tada užrašyk abu Q, sulygink ir išspręsk lygtį t atžvilgiu. Bendra formulė: <b>t = (c₁m₁t₁ + c₂m₂t₂) / (c₁m₁ + c₂m₂)</b>. Kai medžiaga ta pati, c susiprastina.</p>
+<h3>Kalorimetras</h3><p>Gerai izoliuotas indas su vandeniu vadinamas <b>kalorimetru</b>. Juo matuojami šilumos kiekiai ir nustatoma nežinomos medžiagos savitoji šiluminė talpa.</p>`,
+ key:`<h3>Svarbiausia</h3><div class="formula">Q atid. = Q gaut.</div><div class="formula" style="font-size:clamp(16px,1.9vw,21px)">c₁m₁(t₁ − t) = c₂m₂(t − t₂)</div>
+<p class="small muted">t₁ – karštojo kūno, t₂ – šaltojo kūno pradinė temperatūra, t – galutinė.</p>
+<h3>Kodėl vanduo sušyla mažai?</h3><p class="small">Vandens c (4200) daug didesnė nei metalų (400–920). Vienas kilogramas metalo, atvėsdamas 80 °C, atiduoda tiek šilumos, kiek kilogramui vandens užtenka sušilti tik keliais ar keliolika laipsnių.</p>`,
+ pred:{q:'1 kg 100 °C geležies įmetame į 1 kg 20 °C vandens. Kokia bus galutinė temperatūra?',o:['Apie 60 °C','Apie 28 °C','Apie 90 °C','Liks 20 °C'],a:1,
+  why:'Geležies c (460) daug mažesnė nei vandens (4200). Atvėsdama geležis atiduoda nedaug šilumos, todėl vanduo sušyla tik iki maždaug 28 °C.',talk:'Aptarkite: o jei įmestume aliuminį? Pirma spėkite, tada patikrinkite.'},
+ tasks:[
+ {q:'Ką teigia šilumos balanso lygtis?',o:['Karštojo kūno atiduotas šilumos kiekis lygus šaltojo gautam, jei nėra nuostolių','Abiejų kūnų temperatūros pokyčiai visada vienodi','Šaltas kūnas atiduoda šilumą karštam','Šiluma visada dingsta'],a:0,ex:'Energija nedingsta: jei šiluma nepabėga į aplinką, Q atiduotas = Q gautas. Temperatūrų pokyčiai gali būti labai skirtingi.',h:'Prisimink energijos tvermę.',p:'Pirmas variantas. Bandyme matyti, kad metalo ir vandens temperatūros keičiasi nevienodai, o Q – vienodai.'},
+ {q:'Į 2 kg 20 °C vandens įpylėme 1 kg 80 °C vandens. Kokia nusistovės temperatūra?',num:40,tol:.5,u:'°C',ex:'Ta pati medžiaga, todėl c susiprastina: (2·20 + 1·80) / (2 + 1) = 120 / 3 = 40 °C.',h:'Kai abu kūnai – vanduo, c galima išbraukti.',p:'40 °C.'},
+ {q:'Kiek šilumos atiduoda 0,5 kg geležies (c = 460 J/(kg·°C)), atvėsdama nuo 100 °C iki 20 °C? Atsakymą parašyk džauliais.',num:18400,tol:5,u:'J',ex:'Q = 460 · 0,5 · 80 = 18 400 J.',h:'Δt = 100 − 20 = 80 °C.',p:'18 400 J.'},
+ {q:'Vanduo kalorimetre gavo 84 000 J šilumos iš įmesto karšto metalo. Kiek šilumos atidavė metalas, jei nuostolių nėra?',num:84000,tol:1,u:'J',ex:'Pagal šilumos balanso lygtį metalas atidavė tiek, kiek vanduo gavo: 84 000 J.',h:'Q atiduotas = Q gautas.',p:'84 000 J.'},
+ {q:'1 kg 100 °C vario (c = 400 J/(kg·°C)) įmetame į 1 kg 20 °C vandens. Kokia bus galutinė temperatūra? Suapvalink iki sveiko skaičiaus.',num:27,tol:.6,u:'°C',ex:'t = (400·1·100 + 4200·1·20) / (400·1 + 4200·1) = 124 000 / 4600 ≈ 27 °C.',h:'Naudok t = (c₁m₁t₁ + c₂m₂t₂) / (c₁m₁ + c₂m₂).',p:'Apie 27 °C. Galima patikrinti bandyme pasirinkus varį.'},
+ {q:'Kodėl tikrame bandyme vanduo dažnai sušyla kiek mažiau, nei apskaičiuota?',o:['Dalis šilumos atitenka indui ir aplinkai','Termometras visada klysta','Vanduo sugeria šaltį','Metalas toliau kaista'],a:0,ex:'Dalis metalo atiduotos šilumos sušildo patį indą ir orą, todėl vandeniui lieka mažiau.',h:'Ar indas ir oras irgi gali sušilti?',p:'Pirmas variantas. Todėl kalorimetrai gerai izoliuojami.'}],
+ cards:[['Šilumos balanso lygtis','Q atiduotas = Q gautas (jei šiluma nepabėga į aplinką).'],
+ ['Galutinė temperatūra','t = (c₁m₁t₁ + c₂m₂t₂) / (c₁m₁ + c₂m₂)'],
+ ['Kalorimetras','Gerai izoliuotas indas su vandeniu šilumos kiekiams matuoti.']]},
+'varikliai':{n:'Vidaus degimo variklis ir garo turbina',
+ lead:'Šiluminiai varikliai kuro energiją paverčia judėjimu. Pažiūrėkime, kaip automobilio variklis tai daro keturiais taktais.',
+ ex:`<h3>Šiluminis variklis</h3><p><b>Šiluminis variklis</b> kuro vidinę energiją paverčia mechaniniu darbu. Karštos dujos plečiasi ir stumia stūmoklį arba suka turbiną.</p>
+<h3>Keturtaktis vidaus degimo variklis</h3><p>Kuras dega pačiame cilindre. Vienas ciklas – keturi taktai; per juos alkūninis velenas apsisuka du kartus.</p>
+<p><b>Įsiurbimas.</b> Stūmoklis juda žemyn, įleidimo vožtuvas atidarytas, į cilindrą įsiurbiamas kuro ir oro mišinys.<br><b>Suspaudimas.</b> Abu vožtuvai uždaryti, stūmoklis kyla ir suspaudžia mišinį, šis įkaista.<br><b>Darbo eiga.</b> Uždegimo žvakė uždega mišinį, karštos dujos plečiasi ir stumia stūmoklį žemyn – atliekamas darbas.<br><b>Išmetimas.</b> Išleidimo vožtuvas atidarytas, stūmoklis kyla ir išstumia išmetamąsias dujas.</p>
+<p>Darbą atlieka tik darbo eiga, kitus taktus velenas sukasi iš inercijos, padedamas sunkaus smagračio.</p>
+<h3>Garo turbina</h3><p>Katile vanduo kaitinamas ir virsta garais. Aukšto slėgio garai pro tūtas veržiasi į turbinos mentes ir suka ratą. Turbinos suka elektros generatorius šiluminėse ir atominėse elektrinėse.</p>
+<h3>Naudingumo koeficientas</h3><p>Ne visa kuro energija virsta darbu: daug jos išeina su karštomis dujomis ir per aušinimą. <b>η = A / Q · 100 %</b>, čia A – atliktas darbas, Q – kuro išskirta šiluma.</p>`,
+ key:`<h3>Svarbiausia</h3><div class="formula">η = A / Q · 100 %</div>
+<p class="small" style="margin-bottom:4px"><b>Kur dingsta benzino energija</b> <span class="muted">(apytiksliai)</span></p>
+<div class="eb hot"><span>Naudingas darbas</span><i style="width:86%"></i><em>≈ 30 %</em></div>
+<div class="eb"><span>Išmetamosios dujos</span><i style="width:100%"></i><em>≈ 35 %</em></div>
+<div class="eb"><span>Aušinimas</span><i style="width:86%"></i><em>≈ 30 %</em></div>
+<div class="eb"><span>Trintis ir kita</span><i style="width:14%"></i><em>≈ 5 %</em></div>
+<h3>Garo turbina</h3><svg viewBox="0 0 300 120" aria-hidden="true"><rect x="6" y="48" width="60" height="24" rx="6" fill="var(--panel2)" stroke="var(--ink)" stroke-width="2"/>
+<path d="M70 60h44M70 52q22-6 46 0M70 68q22 6 46 0" fill="none" stroke="var(--muted)" stroke-width="3" stroke-dasharray="6 5"/>
+<circle cx="170" cy="60" r="48" fill="var(--panel2)" stroke="var(--ink)" stroke-width="2"/>${Array.from({length:12},(_,i)=>`<path d="M170 60 m0 -20 q14 -12 6 -28" transform="rotate(${i*30} 170 60)" fill="none" stroke="var(--fiz)" stroke-width="5" stroke-linecap="round"/>`).join('')}<circle cx="170" cy="60" r="10" fill="var(--ink)"/>
+<rect x="226" y="54" width="34" height="12" fill="var(--ink)"/><rect x="258" y="36" width="36" height="48" rx="6" fill="var(--hot)"/></svg>
+<div class="trio"><div>Garai<span>iš katilo</span></div><div>Mentės<span>suka ratą</span></div><div>Generatorius<span>gamina elektrą</span></div></div>`,
+ pred:{q:'Variklis dirba keturiais taktais. Kurio takto metu dujos stumia stūmoklį ir atlieka naudingą darbą?',o:['Įsiurbimo','Suspaudimo','Darbo eigos','Išmetimo'],a:2,
+  why:'Tik darbo eigos metu degančio mišinio dujos plečiasi ir stumia stūmoklį. Kitus tris taktus velenas sukasi iš inercijos, padedamas smagračio.',talk:'Aptarkite: kodėl automobiliuose dažniausiai būna 3–4 ar daugiau cilindrų, o ne vienas?'},
+ tasks:[
+ {q:'Kokia energija virsta kuo šiluminiame variklyje?',o:['Kuro vidinė energija → mechaninis darbas','Elektros energija → šiluma','Mechaninis darbas → kuro energija','Šviesa → šiluma'],a:0,ex:'Degant kurui išsiskyrusi šiluma padidina dujų vidinę energiją, o dujos plėsdamosi atlieka darbą.',h:'Iš ko variklis „gauna“ energiją ir ką jis daro?',p:'Kuro energija → darbas.'},
+ {q:'Kurio takto metu abu vožtuvai uždaryti, o stūmoklis kyla aukštyn?',o:['Suspaudimo','Įsiurbimo','Išmetimo','Darbo eigos'],a:0,ex:'Suspaudimo metu abu vožtuvai uždaryti ir stūmoklis kyla, suspausdamas mišinį. Darbo eigos metu vožtuvai irgi uždaryti, bet stūmoklis juda žemyn.',h:'Bandyme pereik taktus po vieną mygtuku „Kitas taktas“.',p:'Suspaudimo.'},
+ {q:'Kas uždega kuro ir oro mišinį benzininiame variklyje?',o:['Uždegimo žvakė','Stūmoklis','Išleidimo vožtuvas','Aušinimo skystis'],a:0,ex:'Darbo eigos pradžioje žvakė sukuria kibirkštį ir uždega suspaustą mišinį.',h:'Pažiūrėk į cilindro viršų darbo eigos pradžioje.',p:'Uždegimo žvakė. (Dyzeliniame variklyje žvakės nėra: oras taip stipriai suspaudžiamas ir įkaista, kad kuras užsidega pats.)'},
+ {q:'Variklio sudegintas kuras išskyrė 200 kJ šilumos, o variklis atliko 60 kJ darbo. Koks variklio naudingumo koeficientas procentais?',num:30,tol:.5,u:'%',ex:'η = A / Q · 100 % = 60 / 200 · 100 % = 30 %.',h:'η = A / Q · 100 %.',p:'30 %.'},
+ {q:'Kiek kartų apsisuka alkūninis velenas per vieną keturtakčio variklio ciklą?',num:2,tol:0,u:'kartus',ex:'Kiekvienas taktas – pusė apsisukimo, todėl 4 taktai – 2 apsisukimai.',h:'Per vieną taktą stūmoklis nueina nuo viršaus iki apačios arba atvirkščiai.',p:'2 kartus.'},
+ {q:'Kas suka garo turbiną?',o:['Aukšto slėgio garų srautas, atsimušantis į mentes','Elektros variklis','Cilindre degantis benzinas','Vėjas'],a:0,ex:'Katile susidarę aukšto slėgio garai veržiasi pro tūtas ir suka turbinos mentes.',h:'Pagalvok, kas susidaro katile kaitinant vandenį.',p:'Garų srautas.'},
+ {q:'Kur dingsta didžioji dalis kuro energijos, kurios variklis nepaverčia darbu?',o:['Išeina su karštomis išmetamosiomis dujomis ir per aušinimą','Visiškai išnyksta','Virsta nauju kuru','Lieka bake'],a:0,ex:'Energija nedingsta: ji šildo aplinką per išmetamąsias dujas ir aušinimo sistemą.',h:'Kodėl automobilio išmetimo vamzdis ir radiatorius būna karšti?',p:'Pirmas variantas.'}],
+ cards:[['Keturi taktai','Įsiurbimas → suspaudimas → darbo eiga → išmetimas. Darbą atlieka tik darbo eiga.'],
+ ['Darbo eiga','Žvakė uždega mišinį, dujos plečiasi ir stumia stūmoklį žemyn.'],
+ ['Garo turbina','Aukšto slėgio garai suka turbinos mentes, o turbina suka generatorių.'],
+ ['Variklio naudingumo koeficientas','η = A / Q · 100 %. Benzininio variklio – apie 25–35 %.']]},
+'judejimas':{n:'Mechaninis judėjimas',
+ lead:'Ar tu dabar judi? Priklauso nuo to, iš kur žiūri. O kas juda greičiau, gerai matyti viename grafike.',
+ ex:`<h3>Judėjimas yra santykinis</h3><p><b>Mechaninis judėjimas</b> – kūno padėties kitimas kitų kūnų atžvilgiu. Kūnas, kurio atžvilgiu stebime judėjimą, vadinamas <b>atskaitos kūnu</b>. Traukinio keleivis nejuda vagono atžvilgiu, bet juda žemės atžvilgiu.</p>
+<h3>Trajektorija, kelias ir poslinkis</h3><p><b>Trajektorija</b> – linija, kuria juda kūnas. <b>Kelias s</b> – trajektorijos ilgis. <b>Poslinkis</b> – tiesi atkarpa nuo pradinės iki galinės padėties; jis turi kryptį. Apibėgus stadiono ratą kelias 400 m, o poslinkis lygus nuliui.</p>
+<h3>Greitis</h3><p>Kūnas juda <b>tolygiai</b>, kai per bet kokius vienodus laiko tarpus nueina vienodus kelius. Jo greitis <b>v = s / t</b>. Vienetai: m/s ir km/h, o <b>1 m/s = 3,6 km/h</b>.</p>
+<h3>Vidutinis greitis</h3><p>Dažniausiai greitis kinta – judėjimas <b>netolygus</b>. Tada skaičiuojamas <b>vidutinis greitis</b>: visas kelias dalijamas iš viso laiko. Tai ne greičių vidurkis!</p>
+<h3>Judėjimo grafikas</h3><p>Grafike s(t) tolygus judėjimas vaizduojamas tiese. Kuo greitis didesnis, tuo tiesė statesnė. Stovinčio kūno grafikas – horizontali linija.</p>`,
+ key:`<h3>Svarbiausia</h3><div class="formula">v = s / t</div><div class="formula">1 m/s = 3,6 km/h</div>
+<table><thead><tr><th>Kas juda</th><th class="n">km/h</th><th class="n">m/s</th></tr></thead><tbody>
+<tr><td>Pėsčiasis</td><td class="n">apie 5</td><td class="n">1,4</td></tr><tr><td>Dviratininkas</td><td class="n">apie 18</td><td class="n">5</td></tr><tr><td>Automobilis mieste</td><td class="n">50</td><td class="n">14</td></tr><tr><td>Garsas ore</td><td class="n">apie 1 220</td><td class="n">340</td></tr></tbody></table>`,
+ pred:{q:'Dviratininkas važiuoja 18 km/h, automobilis – 54 km/h. Kurio grafikas s(t) bus statesnis?',o:['Dviratininko','Automobilio','Vienodi'],a:1,
+  why:'Grafike s(t) statumas rodo greitį: per tą patį laiką automobilis nuvažiuoja 3 kartus didesnį kelią, todėl jo tiesė statesnė.',talk:'Aptarkite: kaip atrodytų automobilio grafikas, jei jis sustotų prie šviesoforo? Pabandykite nustatyti greitį 0.'},
+ tasks:[
+ {q:'Keleivis sėdi važiuojančiame autobuse. Kurio kūno atžvilgiu jis nejuda?',o:['Autobuso','Kelio','Medžių pakelėje','Saulės'],a:0,ex:'Keleivio padėtis autobuso atžvilgiu nesikeičia, o kelio, medžių ir Saulės atžvilgiu – keičiasi.',h:'Kurio kūno atžvilgiu keleivio padėtis nesikeičia?',p:'Autobuso. Paklausk: ar tu dabar judi? (Žemės atžvilgiu ne, o Saulės – labai greitai.)'},
+ {q:'Dviratininkas per 20 s nuvažiavo 100 m. Koks jo greitis (m/s)?',num:5,tol:.01,u:'m/s',ex:'v = s / t = 100 / 20 = 5 m/s.',h:'v = s / t.',p:'5 m/s (18 km/h).'},
+ {q:'Automobilis važiuoja 72 km/h greičiu. Kiek tai m/s?',num:20,tol:.01,u:'m/s',ex:'72 / 3,6 = 20 m/s.',h:'km/h paverčiame m/s dalindami iš 3,6.',p:'20 m/s.'},
+ {q:'Pėsčiasis eina 1,5 m/s greičiu. Kiek metrų jis nueis per 2 minutes?',num:180,tol:.5,u:'m',ex:'2 min = 120 s. s = v·t = 1,5 · 120 = 180 m.',h:'Pirma minutes paversk sekundėmis.',p:'180 m.'},
+ {q:'Kelionė: 3 km dviračiu per 10 min, paskui 1 km pėsčiomis per 15 min. Koks vidutinis greitis visoje kelionėje (km/h)?',num:9.6,tol:.05,u:'km/h',ex:'Visas kelias 4 km, visas laikas 25 min = 25/60 h. v = 4 / (25/60) = 9,6 km/h. Greičių vidurkis (18 + 4) / 2 = 11 km/h būtų neteisingas!',h:'Visas kelias / visas laikas. 25 min = 25/60 h.',p:'9,6 km/h. Esminė vieta: vidutinis greitis nėra greičių vidurkis.'},
+ {q:'Kaip grafike s(t) atrodo stovinčio kūno judėjimas?',o:['Horizontali linija','Vertikali linija','Kylanti tiesė','Taškas'],a:0,ex:'Laikas eina, o kelias nesikeičia, todėl linija horizontali.',h:'Kas keičiasi, o kas ne, kai kūnas stovi?',p:'Horizontali linija. Bandyme nustatykite vieno greitį 0.'},
+ {q:'Kuo skiriasi kelias nuo poslinkio?',o:['Kelias – trajektorijos ilgis, poslinkis – tiesi atkarpa nuo pradžios iki pabaigos','Niekuo','Poslinkis visada ilgesnis už kelią','Kelias turi kryptį, poslinkis – ne'],a:0,ex:'Apibėgus stadiono ratą kelias 400 m, o poslinkis lygus nuliui – grįžai į tą pačią vietą.',h:'Pagalvok apie bėgimą stadiono ratu.',p:'Pirmas variantas.'}],
+ cards:[['Mechaninis judėjimas','Kūno padėties kitimas kitų kūnų (atskaitos kūno) atžvilgiu.'],
+ ['v = s / t','Greitis = kelias / laikas. 1 m/s = 3,6 km/h.'],
+ ['Vidutinis greitis','Visas kelias padalytas iš viso laiko. Ne greičių vidurkis!'],
+ ['Kelias ir poslinkis','Kelias – trajektorijos ilgis. Poslinkis – tiesi atkarpa nuo pradinės iki galinės padėties, turi kryptį.'],
+ ['Grafikas s(t)','Tolygus judėjimas – tiesė; kuo statesnė, tuo greitis didesnis. Stovint – horizontali linija.']]}
+};
+const TIDS=Object.keys(TOPICS);
+const CARDS=[];TIDS.forEach(t=>TOPICS[t].cards.forEach((c,i)=>CARDS.push({id:t+':'+i,t,f:c[0],b:c[1]})));
+
+/* ---------- state & sync ---------- */
+const blank=()=>({v:1,u:0,mode:'kartu',sem:1,pts:0,days:[],topics:{},cards:{},pred:{}});
+function sanitize(o){const s=blank();if(!o||typeof o!=='object')return s;
+ s.u=Number(o.u)||0;s.mode=o.mode==='vienas'?'vienas':'kartu';s.sem=o.sem===2?2:1;s.pts=Math.max(0,Number(o.pts)||0);
+ s.days=Array.isArray(o.days)?o.days.filter(d=>/^\d{4}-\d\d-\d\d$/.test(d)).slice(-90):[];
+ for(const t of TIDS){const x=o.topics&&o.topics[t];if(x){s.topics[t]={read:!!x.read,played:!!x.played,ok:{}};if(x.ok)for(const k in x.ok)if(/^\d+$/.test(k)&&x.ok[k])s.topics[t].ok[k]=true}
+  if(o.pred&&Number.isInteger(o.pred[t]))s.pred[t]=o.pred[t]}
+ for(const c of CARDS){const r=o.cards&&o.cards[c.id];if(r&&/^\d{4}-\d\d-\d\d$/.test(r.due))s.cards[c.id]={box:clamp(Number(r.box)||1,1,5),due:r.due}}
+ return s}
+let S=blank();
+try{S=sanitize(JSON.parse(localStorage.getItem('mokausi')||'null'))}catch(e){}
+let dbRef=null,writing=false,again=false,saveT=0,sync='local';
+const T=id=>S.topics[id]||(S.topics[id]={read:false,played:false,ok:{}});
+function save(){S.u=Date.now();try{localStorage.setItem('mokausi',JSON.stringify(S))}catch(e){}clearTimeout(saveT);saveT=setTimeout(push,1200);top()}
+let odoo=false;
+async function rpc(params){const r=await fetch('/mokausi/api/state',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',method:'call',params})});const j=await r.json();if(j.error)throw j.error;return j.result}
+async function push(){if(!dbRef&&!odoo)return;if(writing){again=true;return}writing=true;
+ try{const st=JSON.parse(JSON.stringify(S));if(odoo){const r=await rpc({state:st});if(!r||!r.login){odoo=false;setSync('login')}}else await dbRef.set({state:st})}catch(e){if(e&&e.code==='invalid_argument'){dbRef=null;setSync('local')}else if(odoo)setSync('slow')}
+ writing=false;if(again){again=false;push()}}
+function setSync(v){sync=v;const el=$('#sync');if(el)el.textContent=syncText();const lg=$('#login');if(lg)lg.hidden=v!=='login'}
+const syncText=()=>sync==='ok'?'Progresas išsaugomas ir sinchronizuojamas tarp tavo įrenginių.':sync==='slow'?'Kol kas nepavyksta pasiekti saugyklos – progresas laikinai saugomas šiame įrenginyje.':sync==='login'?'Prisijunk prie svetainės, kad progresas būtų išsaugotas tavo paskyroje ir matytųsi visuose įrenginiuose. Dabar jis saugomas tik šioje naršyklėje.':'Progresas saugomas šiame įrenginyje.';
+async function initOdoo(){try{const r=await rpc({});if(!r||!r.login){setSync('login');return}odoo=true;
+ const rs=r.state?sanitize(r.state):null;if(rs&&rs.u>S.u){S=rs;try{localStorage.setItem('mokausi',JSON.stringify(S))}catch(e){}applyMode();route(true)}else if(S.u>0)push();setSync('ok')}catch(e){}}
+async function initSync(){try{const c=window.claude;if(!c||!c.use){if(location.protocol.startsWith('http'))initOdoo();return}
+ const [db,user]=await Promise.all([c.use('db'),c.use('user')]);if(!db||!user)return;
+ const id=await user.id();if(!id)return;dbRef=db.doc('data/users/'+id+'/mokymasis');
+ const tm=setTimeout(()=>setSync('slow'),10000);const snap=await dbRef.get();clearTimeout(tm);
+ const r=snap.exists?snap.data():null;const rs=r&&r.state?sanitize(r.state):null;
+ if(rs&&rs.u>S.u){S=rs;try{localStorage.setItem('mokausi',JSON.stringify(S))}catch(e){}applyMode();route()}else if(S.u>0)push();
+ setSync('ok')}catch(e){setSync(dbRef?'slow':'local')}}
+function day(){const d=todayStr();if(!S.days.includes(d)){S.days.push(d);S.days=S.days.slice(-90)}}
+function addPts(n){S.pts+=n;day()}
+function streak(){let n=0,o=S.days.includes(todayStr())?0:-1;while(S.days.includes(todayStr(o))){n++;o--}return n}
+const dueCards=()=>CARDS.filter(c=>{const r=S.cards[c.id];return !r||r.due<=todayStr()});
+function tprog(id){const x=T(id),n=TOPICS[id].tasks.length;const ok=Object.keys(x.ok).length;return {ok,n,pct:((x.read?1:0)+(x.played?1:0)+ok)/(n+2),done:x.read&&x.played&&ok===n}}
+function subjPct(){return TIDS.reduce((a,t)=>a+tprog(t).pct,0)/(SEM[1].length+SEM[2].length)}
+
+/* ---------- top bar ---------- */
+function top(){$('#due').textContent=dueCards().length;$('#pts').innerHTML=`<b>${nf(S.pts)}</b> taškų · serija ${streak()} d.`;
+ $('#mKartu').classList.toggle('on',S.mode==='kartu');$('#mVienas').classList.toggle('on',S.mode==='vienas');
+ const h=location.hash.slice(1);document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('on',a.dataset.n===h||(a.dataset.n==='fizika'&&!!TOPICS[h])))}
+function applyMode(){document.documentElement.dataset.mode=S.mode}
+document.querySelectorAll('.seg [data-mode]').forEach(b=>b.addEventListener('click',()=>{S.mode=b.dataset.mode;applyMode();save();route(true)}));
+$('.brand').addEventListener('click',()=>{location.hash=''});
+
+/* ---------- canvas helpers ---------- */
+const probe=$('#probe');let P={},palT=-1e9;
+function C(v){probe.style.color='var('+v+')';return getComputedStyle(probe).color}
+function pal(){const n=performance.now();if(n-palT>600){palT=n;P={ink:C('--ink'),muted:C('--muted'),line:C('--line'),bg:C('--bg'),panel:C('--panel'),panel2:C('--panel2'),fiz:C('--fiz'),hot:C('--hot'),cold:C('--cold')}}return P}
+function fit(c){const r=c.getBoundingClientRect(),d=Math.min(2,window.devicePixelRatio||1),w=Math.max(1,Math.round(r.width*d)),h=Math.max(1,Math.round(r.height*d));if(c.width!==w||c.height!==h){c.width=w;c.height=h}const x=c.getContext('2d');x.setTransform(d,0,0,d,0,0);return {x,W:r.width,H:r.height}}
+const tcol=(t,a=1)=>{const k=clamp((t+20)/120,0,1);return `hsla(${(210+155*k)%360},80%,${52-6*Math.sin(k*Math.PI)}%,${a})`};
+function thermo(x,tx,t0,t1,T){x.fillStyle=P.panel2;x.beginPath();x.roundRect(tx-7,t0,14,t1-t0,7);x.fill();x.beginPath();x.arc(tx,t1+8,14,0,6.283);x.fillStyle=tcol(T);x.fill();
+ const ty=t1-(clamp(T,0,100)/100)*(t1-t0-6);x.fillRect(tx-4,ty,8,t1-ty+4);x.fillStyle=P.muted;x.font='13px Inter,sans-serif';x.textAlign='right';x.textBaseline='middle';
+ [0,50,100].forEach(v=>x.fillText(v+'°',tx-14,t1-(v/100)*(t1-t0-6)))}
+function flames(x,cx,y,w,n,k){const tt=performance.now()/120;for(let i=0;i<n;i++){const fx=cx-w/2+w*(i+.5)/n,h=(18+14*Math.sin(tt+i*1.7)+10*Math.sin(tt*1.3+i))*k;
+ x.fillStyle='rgba(255,120,30,.9)';x.beginPath();x.moveTo(fx-9,y);x.quadraticCurveTo(fx-10,y-h*.6,fx,y-h);x.quadraticCurveTo(fx+10,y-h*.6,fx+9,y);x.fill();
+ x.fillStyle='rgba(255,215,80,.95)';x.beginPath();x.moveTo(fx-5,y);x.quadraticCurveTo(fx-5,y-h*.4,fx,y-h*.6);x.quadraticCurveTo(fx+5,y-h*.4,fx+5,y);x.fill()}}
+function ticks(a,b,n){const raw=(b-a)/n,mag=10**Math.floor(Math.log10(raw)),st=[1,2,5,10].map(k=>k*mag).find(s=>s>=raw-1e-9);const o=[];for(let v=Math.ceil(a/st)*st;v<=b+1e-9;v+=st)o.push(+v.toFixed(6));return o}
+function axes(x,W,H,o){const L=46,R=16,Tp=14,B=28,pw=W-L-R,ph=H-Tp-B;const X=v=>L+(v-o.x0)/(o.x1-o.x0)*pw,Y=v=>Tp+ph-(v-o.y0)/(o.y1-o.y0)*ph;
+ x.clearRect(0,0,W,H);x.font='13px Inter,system-ui,sans-serif';x.lineWidth=1;x.strokeStyle=P.line;x.fillStyle=P.muted;x.textAlign='right';x.textBaseline='middle';
+ for(const v of ticks(o.y0,o.y1,W<520?4:6)){const y=Y(v);x.beginPath();x.moveTo(L,y);x.lineTo(W-R,y);x.stroke();x.fillText(nf(v),L-8,y)}
+ x.textAlign='center';x.textBaseline='top';const xt=ticks(o.x0,o.x1,W<520?4:7);for(const v of xt)x.fillText(nf(v),X(v),Tp+ph+8);
+ return {X,Y,L,R,Tp,ph,pw}}
+function line(x,pts,X,Y,c,w){if(pts.length<2)return;x.strokeStyle=c;x.lineWidth=w;x.lineJoin='round';x.beginPath();pts.forEach((p,i)=>i?x.lineTo(X(p[0]),Y(p[1])):x.moveTo(X(p[0]),Y(p[1])));x.stroke()}
+
+/* ---------- simulations ---------- */
+let active=null,lastT=0;
+function loop(t){const dt=Math.min(.05,(t-lastT)/1000||0);lastT=t;if(active&&!document.hidden){pal();try{active.frame(dt)}catch(e){active=null;console.error(e)}}requestAnimationFrame(loop)}
+requestAnimationFrame(loop);
+
+const SIMS={
+'vidine-energija':{html:`<div class="stage"><div class="cap"><span>Dalelės schemiškai: kuo karščiau, tuo greičiau jos juda.</span></div><div class="fig" id="cv"><canvas></canvas></div>
+<div class="cap"><span>Temperatūra, °C</span><span>laikas, s</span></div><div class="fig g" id="gv"><canvas></canvas></div></div>
+<div class="ctl"><div class="read"><div class="big" id="o1">80 °C · 10 °C</div><div id="o2">Kūnai atskirti. Nustatyk temperatūras ir mases, tada suglausk.</div></div>
+<div><label for="rT1">Kairysis kūnas <output id="vT1"></output></label><input type="range" id="rT1" min="-20" max="100" step="1" value="80"></div>
+<div><label for="rm1">Jo masė <output id="vm1"></output></label><input type="range" id="rm1" min="0.5" max="3" step="0.5" value="1"></div>
+<div><label for="rT2">Dešinysis kūnas <output id="vT2"></output></label><input type="range" id="rT2" min="-20" max="100" step="1" value="10"></div>
+<div><label for="rm2">Jo masė <output id="vm2"></output></label><input type="range" id="rm2" min="0.5" max="3" step="0.5" value="1"></div>
+<div class="row"><button class="btn hot" id="go">Suglausti kūnus</button><button class="btn ghost" id="rs">Iš naujo</button></div></div>`,
+ mount(root,api){const cv=$('#cv canvas',root),gv=$('#gv canvas',root);
+  const s={T1:80,m1:1,T2:10,m2:1,j:false,done:false,Tl:80,Tr:10,t:0,h:[[0,80,10]],ht:0};
+  const mk=n=>Array.from({length:n},()=>({x:Math.random(),y:Math.random(),a:Math.random()*6.283}));let pl,pr;
+  const build=()=>{pl=mk(Math.round(10*s.m1)+6);pr=mk(Math.round(10*s.m2)+6)};build();
+  const ins=['T1','m1','T2','m2'].map(k=>$('#r'+k,root));
+  const out=()=>{$('#vT1',root).textContent=nf(s.T1)+' °C';$('#vT2',root).textContent=nf(s.T2)+' °C';$('#vm1',root).textContent=nf(s.m1,1)+' kg';$('#vm2',root).textContent=nf(s.m2,1)+' kg';
+   $('#o1',root).textContent=s.done?nf(s.Tl,1)+' °C':nf(s.Tl,1)+' °C · '+nf(s.Tr,1)+' °C';
+   const hotL=s.Tl>s.Tr;$('#o2',root).textContent=!s.j?'Kūnai atskirti. Nustatyk temperatūras ir mases, tada suglausk.':s.done?`Nusistovėjo pusiausvyra. Patikrink: (${nf(s.m1,1)}·${nf(s.T1)} + ${nf(s.m2,1)}·${nf(s.T2)}) / (${nf(s.m1,1)} + ${nf(s.m2,1)}) = ${nf(s.Tl,1)} °C`:Math.abs(s.T1-s.T2)<.5?'Temperatūros vienodos, šiluma neteka.':`Šiluma teka iš ${hotL?'kairiojo':'dešiniojo'} (karštesnio) į ${hotL?'dešinįjį':'kairįjį'} (šaltesnį) kūną.`;
+   $('#go',root).textContent=s.j?'Atskirti':'Suglausti kūnus';ins.forEach(i=>i.disabled=s.j)};
+  const reset=()=>{s.j=false;s.done=false;s.Tl=s.T1;s.Tr=s.T2;s.t=0;s.h=[[0,s.T1,s.T2]];out()};
+  ins.forEach(i=>i.addEventListener('input',()=>{const om1=s.m1,om2=s.m2;s.T1=+ins[0].value;s.m1=+ins[1].value;s.T2=+ins[2].value;s.m2=+ins[3].value;if(om1!==s.m1||om2!==s.m2)build();reset()}));
+  $('#go',root).addEventListener('click',()=>{if(s.j)reset();else{s.j=true;out()}});$('#rs',root).addEventListener('click',()=>{ins[0].value=80;ins[1].value=1;ins[2].value=10;ins[3].value=1;s.T1=80;s.m1=1;s.T2=10;s.m2=1;build();reset()});
+  out();
+  function move(ps,b,T,dt){const v=24+(T+20)*2.4;for(const p of ps){p.a+=(Math.random()-.5)*.6;p.x+=Math.cos(p.a)*v*dt/b.w;p.y+=Math.sin(p.a)*v*dt/b.h;
+   if(p.x<0){p.x=-p.x;p.a=Math.PI-p.a}if(p.x>1){p.x=2-p.x;p.a=Math.PI-p.a}if(p.y<0){p.y=-p.y;p.a=-p.a}if(p.y>1){p.y=2-p.y;p.a=-p.a}}}
+  return {frame(dt){
+   if(s.j&&!s.done){const k=1.1,q=k*(s.Tl-s.Tr)*dt;s.Tl-=q/s.m1;s.Tr+=q/s.m2;s.t+=dt;s.ht+=dt;if(s.ht>.08){s.ht=0;s.h.push([s.t,s.Tl,s.Tr])}
+    if(Math.abs(s.Tl-s.Tr)<.06){const f=(s.m1*s.T1+s.m2*s.T2)/(s.m1+s.m2);s.Tl=s.Tr=f;s.h.push([s.t,f,f]);s.done=true;api.played()}out()}
+   let {x,W,H}=fit(cv);const pad=14,top=34,gap=s.j?0:26,tot=W-2*pad-gap,w1=tot*s.m1/(s.m1+s.m2),bh=H-top-pad;
+   const b1={x:pad,y:top,w:w1,h:bh},b2={x:pad+w1+gap,y:top,w:tot-w1,h:bh};x.clearRect(0,0,W,H);
+   const r=clamp(W/110,3.5,6);
+   [[b1,pl,s.Tl],[b2,pr,s.Tr]].forEach(([b,ps,Tm])=>{move(ps,b,Tm,dt);x.fillStyle=tcol(Tm,.16);x.strokeStyle=tcol(Tm,.9);x.lineWidth=2;x.beginPath();x.roundRect(b.x,b.y,b.w,b.h,12);x.fill();x.stroke();
+    x.fillStyle=tcol(Tm);for(const p of ps){x.beginPath();x.arc(b.x+r+p.x*(b.w-2*r),b.y+r+p.y*(b.h-2*r),r,0,6.283);x.fill()}
+    x.fillStyle=P.ink;x.font='600 14px Inter,sans-serif';x.textAlign='left';x.textBaseline='middle';x.fillText(nf(Tm,1)+' °C',b.x+4,top/2)});
+   if(s.j&&!s.done&&Math.abs(s.Tl-s.Tr)>.5){const cx=b2.x,dir=s.Tl>s.Tr?1:-1,ph=(performance.now()/600)%1;x.fillStyle=P.hot;
+    for(let i=0;i<4;i++){const y=top+bh*(i+.5)/4,o=(ph-.5)*14*dir;x.beginPath();x.moveTo(cx+o-6*dir,y-8);x.lineTo(cx+o+6*dir,y);x.lineTo(cx+o-6*dir,y+8);x.closePath();x.fill()}}
+   ({x,W,H}=fit(gv));const tmax=Math.max(5,Math.ceil(s.t+.5));const a=axes(x,W,H,{x0:0,x1:tmax,y0:-20,y1:100});
+   line(x,s.h.map(p=>[p[0],p[1]]),a.X,a.Y,tcol(s.T1),3);line(x,s.h.map(p=>[p[0],p[2]]),a.X,a.Y,tcol(s.T2),3);
+   if(s.done){x.setLineDash([5,5]);x.strokeStyle=P.muted;x.lineWidth=1.5;x.beginPath();x.moveTo(a.L,a.Y(s.Tl));x.lineTo(W-a.R,a.Y(s.Tl));x.stroke();x.setLineDash([])}
+  }}}},
+'silumos-kiekis':{html:`<div class="stage"><div class="fig" id="cv"><canvas></canvas></div>
+<div class="cap"><span>Temperatūra, °C</span><span>laikas, s</span></div><div class="fig g" id="gv"><canvas></canvas></div></div>
+<div class="ctl"><div class="read"><div class="big" id="o1">20 °C · 0 s</div><div id="o2"></div></div>
+<div><label>Medžiaga</label><div class="row" id="mats"></div></div>
+<div><label for="rm">Masė <output id="vm"></output></label><input type="range" id="rm" min="0.2" max="2" step="0.1" value="1"></div>
+<div><label for="rP">Kaitlentės galia <output id="vP"></output></label><input type="range" id="rP" min="500" max="2000" step="100" value="1000"></div>
+<div class="row"><button class="btn hot" id="go">Kaitinti</button><button class="btn ghost" id="rs">Iš naujo</button></div>
+<p class="small muted">Laikas pagreitintas 25 kartus. Kiekvienas baigtas bandymas lieka grafike palyginimui.</p></div>`,
+ mount(root,api){const M={vanduo:['Vanduo',4200,1],aliejus:['Aliejus',1700,1],aliuminis:['Aliuminis',920,0],gelezis:['Geležis',460,0],varis:['Varis',400,0]};
+  const cv=$('#cv canvas',root),gv=$('#gv canvas',root);const s={mat:'vanduo',m:1,P:1000,t:0,T:20,run:false,cur:[[0,20]],runs:[]};
+  const mats=$('#mats',root);mats.innerHTML=Object.keys(M).map(k=>`<button class="opt" data-m="${k}">${M[k][0]}</button>`).join('');
+  const c=()=>M[s.mat][1];
+  const out=()=>{mats.querySelectorAll('.opt').forEach(b=>b.classList.toggle('pick',b.dataset.m===s.mat));$('#vm',root).textContent=nf(s.m,1)+' kg';$('#vP',root).textContent=nf(s.P)+' W';
+   $('#o1',root).textContent=nf(s.T,1)+' °C · '+nf(s.t)+' s';const Q=s.P*s.t;
+   $('#o2',root).innerHTML=`Q = P·t = ${nf(s.P)} W · ${nf(s.t)} s = <b>${nf(Q)} J</b><br>Δt = Q / (c·m) = ${nf(Q)} / (${nf(c())} · ${nf(s.m,1)}) = <b>${nf(s.T-20,1)} °C</b>${s.T>=100?'<br>Pasiekta 100 °C.':''}`;
+   $('#go',root).textContent=s.run?'Pauzė':s.T>=100?'Baigta':'Kaitinti';$('#go',root).disabled=s.T>=100};
+  const reset=()=>{s.run=false;s.t=0;s.T=20;s.cur=[[0,20]];out()};
+  mats.addEventListener('click',e=>{const b=e.target.closest('[data-m]');if(!b)return;s.mat=b.dataset.m;reset()});
+  $('#rm',root).addEventListener('input',e=>{s.m=+e.target.value;reset()});$('#rP',root).addEventListener('input',e=>{s.P=+e.target.value;reset()});
+  $('#go',root).addEventListener('click',()=>{s.run=!s.run;out()});$('#rs',root).addEventListener('click',()=>{s.runs=[];reset()});out();
+  return {frame(dt){
+   if(s.run){s.t+=dt*25;s.T=20+s.P*s.t/(c()*s.m);if(s.T>=100){s.T=100;s.t=80*c()*s.m/s.P;s.run=false;s.cur.push([s.t,100]);s.runs.push({l:M[s.mat][0]+', '+nf(s.m,1)+' kg',p:s.cur.slice(),t:s.t});if(s.runs.length>4)s.runs.shift();api.played()}
+    else if(!s.cur.length||s.t-s.cur[s.cur.length-1][0]>0.5)s.cur.push([s.t,s.T]);out()}
+   let {x,W,H}=fit(cv);x.clearRect(0,0,W,H);const cx=W*.44,base=H-34,pw=Math.min(W*.5,260);
+   x.fillStyle=P.panel2;x.fillRect(cx-pw/2-14,base,pw+28,20);x.fillStyle=s.run?P.hot:P.muted;x.globalAlpha=s.run?.9:.5;x.fillRect(cx-pw/2,base,pw,8);x.globalAlpha=1;
+   const liq=M[s.mat][2];
+   if(liq){const bw=Math.min(W*.36,190),bh=Math.min(H*.6,190),bx=cx-bw/2,by=base-bh;x.fillStyle=tcol(s.T,.85);x.fillRect(bx+4,by+bh*.25,bw-8,bh*.75-4);
+    x.strokeStyle=P.ink;x.lineWidth=3;x.beginPath();x.moveTo(bx,by);x.lineTo(bx,base-4);x.lineTo(bx+bw,base-4);x.lineTo(bx+bw,by);x.stroke();
+    x.fillStyle='#ffffff55';x.fillRect(bx+10,by+bh*.3,6,bh*.6)}
+   else{const bw=Math.min(W*.32,170),bh=Math.min(H*.36,110),bx=cx-bw/2,by=base-bh;const g=x.createLinearGradient(bx,by,bx,base);g.addColorStop(0,'#c9ced8');g.addColorStop(1,'#7d8594');x.fillStyle=g;x.fillRect(bx,by,bw,bh);
+    x.fillStyle=tcol(s.T,clamp((s.T-20)/80,0,1)*.75);x.fillRect(bx,by,bw,bh);x.fillStyle='#ffffff66';x.fillRect(bx,by,bw,5)}
+   if(s.run){x.strokeStyle=tcol(90,.55);x.lineWidth=2.5;const ph=performance.now()/300;for(let i=0;i<3;i++){const wx=cx-40+i*40;x.beginPath();for(let k=0;k<=30;k++){const yy=40+k*2.4;const xx=wx+Math.sin(ph+k*.35+i)*5;k?x.lineTo(xx,yy):x.moveTo(xx,yy)}x.stroke()}}
+   const tx=W-46,t0=24,t1=base-24;x.fillStyle=P.panel2;x.beginPath();x.roundRect(tx-7,t0,14,t1-t0,7);x.fill();x.beginPath();x.arc(tx,t1+8,14,0,6.283);x.fillStyle=tcol(s.T);x.fill();
+   const ty=t1-(s.T/100)*(t1-t0-6);x.fillRect(tx-4,ty,8,t1-ty+4);x.fillStyle=P.muted;x.font='13px Inter,sans-serif';x.textAlign='right';x.textBaseline='middle';
+   [0,50,100].forEach(v=>{const y=t1-(v/100)*(t1-t0-6);x.fillText(v+'°',tx-14,y)});
+   x.textAlign='left';x.fillStyle=P.ink;x.font='600 15px Inter,sans-serif';x.fillText(M[s.mat][0]+', '+nf(s.m,1)+' kg',16,22);
+   ({x,W,H}=fit(gv));const tm=Math.max(60,s.t,...s.runs.map(r=>r.t))*1.08;const a=axes(x,W,H,{x0:0,x1:tm,y0:20,y1:100});
+   s.runs.forEach((r,i)=>{line(x,r.p,a.X,a.Y,i===s.runs.length-1&&!s.run&&s.T>=100?P.hot:P.muted,2);x.fillStyle=P.muted;x.font='13px Inter,sans-serif';const ex=a.X(r.t);x.textAlign=ex>W-130?'right':'left';x.textBaseline='bottom';x.fillText(r.l,ex>W-130?ex-4:ex+4,a.Y(100)+16+(i%2)*15)});
+   if(s.T<100)line(x,s.cur,a.X,a.Y,P.hot,3)
+  }}}},
+'busenu-kitimas':{html:`<div class="stage"><div class="fig" id="cv"><canvas></canvas></div>
+<div class="cap"><span>Temperatūra, °C</span><span>gauta šilumos, kJ</span></div><div class="fig g" id="gv"><canvas></canvas></div>
+<div class="stages" id="stg"></div></div>
+<div class="ctl"><div class="read"><div class="big" id="o1"></div><div id="o2"></div></div>
+<div><label for="rQ">Gauta šilumos <output id="vQ"></output></label><input type="range" id="rQ" min="0" max="3096" step="1" value="0"></div>
+<div><label for="rP">Kaitinimo galia <output id="vP"></output></label><input type="range" id="rP" min="1000" max="3000" step="250" value="2000"></div>
+<div class="row"><button class="btn hot" id="go">Kaitinti</button><button class="btn ghost" id="rs">Iš naujo</button></div>
+<p class="small muted">1 kg ledo, pradžioje −20 °C. Slankiklį „Gauta šilumos“ gali tempti pirštu. Laikas pagreitintas 60 kartų.</p></div>`,
+ mount(root,api){const cv=$('#cv canvas',root),gv=$('#gv canvas',root);const Q1=42,Q2=376,Q3=796,Q4=3096;
+  const st=Q=>Q<Q1?{T:-20+Q/2.1,ph:0,m:0,v:0}:Q<Q2?{T:0,ph:1,m:(Q-Q1)/334,v:0}:Q<Q3?{T:(Q-Q2)/4.2,ph:2,m:1,v:0}:{T:100,ph:3,m:1,v:Math.min(1,(Q-Q3)/2300)};
+  const NAMES=['Ledas šyla','Ledas tirpsta','Vanduo šyla','Vanduo verda'];const NEED=[42,334,420,2300];
+  const s={Q:0,P:2000,run:false,t:0};const N=42,cols=7;
+  const ps=Array.from({length:N},(_,i)=>({i,r:Math.random(),x:0,y:0,vx:0,vy:0,ph:0}));ps.sort((a,b)=>a.r-b.r).forEach((p,k)=>p.r=(k+.5)/N);
+  const stg=$('#stg',root);
+  const out=()=>{const z=st(s.Q);$('#o1',root).textContent=nf(z.T,1)+' °C';
+   $('#o2',root).innerHTML=`<b>${NAMES[z.ph]}</b><br>Gauta ${nf(s.Q)} kJ · ištirpo ${nf(z.m*100)} % · išgaravo ${nf(z.v*100)} %`;
+   $('#vQ',root).textContent=nf(s.Q)+' kJ';$('#vP',root).textContent=nf(s.P)+' W';$('#rQ',root).value=Math.round(s.Q);
+   stg.innerHTML=NAMES.map((n,i)=>`<span class="${i===z.ph?'on':''}">${n}: ${nf(NEED[i])} kJ</span>`).join('');
+   $('#go',root).textContent=s.run?'Pauzė':s.Q>=Q4?'Viskas išgaravo':'Kaitinti';$('#go',root).disabled=s.Q>=Q4};
+  $('#rQ',root).addEventListener('input',e=>{s.Q=+e.target.value;s.run=false;if(s.Q>Q2)api.played();out()});
+  $('#rP',root).addEventListener('input',e=>{s.P=+e.target.value;out()});
+  $('#go',root).addEventListener('click',()=>{s.run=!s.run;out()});$('#rs',root).addEventListener('click',()=>{s.Q=0;s.run=false;out()});out();
+  const curve=[[0,-20],[Q1,0],[Q2,0],[Q3,100],[Q4,100]];
+  return {frame(dt){
+   if(s.run){s.Q=Math.min(Q4,s.Q+s.P/1000*dt*60);if(s.Q>Q2)api.played();if(s.Q>=Q4)s.run=false;out()}
+   const z=st(s.Q);let {x,W,H}=fit(cv);x.clearRect(0,0,W,H);
+   const bw=Math.min(W-60,420),bh=H-70,bx=(W-bw)/2,by=22,floor=by+bh;
+   x.fillStyle=s.run?P.hot:P.muted;x.globalAlpha=s.run?.9:.45;x.fillRect(bx+20,floor+14,bw-40,8);x.globalAlpha=1;
+   x.strokeStyle=P.ink;x.lineWidth=3;x.beginPath();x.moveTo(bx,by);x.lineTo(bx,floor);x.lineTo(bx+bw,floor);x.lineTo(bx+bw,by);x.stroke();
+   const R=clamp(bw/44,4,8),gs=R*2.5,gx=bx+bw/2-(cols-1)*gs/2,rows=N/cols;
+   for(const p of ps){const hx=gx+(p.i%cols)*gs,hy=floor-R-4-Math.floor(p.i/cols)*gs;const want=p.r<z.v?2:p.r<z.m?1:0;
+    if(want!==p.ph){if(p.ph===0){p.x=hx;p.y=hy}const sp=want===2?170:50,a=Math.random()*6.283;p.vx=Math.cos(a)*sp;p.vy=Math.sin(a)*sp;if(want===0){p.x=hx;p.y=hy}p.ph=want}
+    if(p.ph===0){const amp=1+(z.T+20)/9;p.x=hx+(Math.random()-.5)*amp;p.y=hy+(Math.random()-.5)*amp;x.fillStyle=P.cold}
+    else{const top=p.ph===2?by+R:floor-R-rows*gs*1.15,sp=p.ph===2?170:50;p.vx+=(Math.random()-.5)*sp*.4;p.vy+=(Math.random()-.5)*sp*.4;const m=Math.hypot(p.vx,p.vy)||1;p.vx*=sp/m;p.vy*=sp/m;
+     p.x+=p.vx*dt;p.y+=p.vy*dt;if(p.x<bx+R){p.x=bx+R;p.vx=Math.abs(p.vx)}if(p.x>bx+bw-R){p.x=bx+bw-R;p.vx=-Math.abs(p.vx)}if(p.y<top){p.y=top;p.vy=Math.abs(p.vy)}if(p.y>floor-R){p.y=floor-R;p.vy=-Math.abs(p.vy)}
+     x.fillStyle=p.ph===2?P.hot:'#7b6cf0'}
+    x.beginPath();x.arc(p.x,p.y,R,0,6.283);x.fill()}
+   ({x,W,H}=fit(gv));const a=axes(x,W,H,{x0:0,x1:Q4,y0:-20,y1:110});
+   line(x,curve,a.X,a.Y,P.line,6);const done=curve.filter(p=>p[0]<=s.Q);done.push([s.Q,z.T]);line(x,done,a.X,a.Y,P.fiz,3.5);
+   x.fillStyle=P.hot;x.beginPath();x.arc(a.X(s.Q),a.Y(z.T),7,0,6.283);x.fill()
+  }}}},
+'kuro-siluma':{html:`<div class="stage"><div class="fig" id="cv"><canvas></canvas></div>
+<div class="card"><h3 style="margin-top:0" id="bt"></h3><div id="bars"></div></div></div>
+<div class="ctl"><div class="read"><div class="big" id="o1"></div><div id="o2"></div></div>
+<div><label>Kuras</label><div class="row" id="fu"></div></div>
+<div><label for="rm">Kuro masė <output id="vm"></output></label><input type="range" id="rm" min="1" max="50" step="1" value="10"></div>
+<div><label for="re">Vandeniui atitenka <output id="ve"></output></label><input type="range" id="re" min="10" max="100" step="5" value="40"></div>
+<div class="row"><button class="btn hot" id="go">Uždegti</button><button class="btn ghost" id="rs">Iš naujo</button></div>
+<p class="small muted">Puode 2 kg 20 °C vandens. Degimas pagreitintas. Savitosios degimo šilumos apytikslės.</p></div>`,
+ mount(root,api){const F={malkos:['Sausos malkos',10,'#8a5a2b'],spiritas:['Spiritas',27,'#9ec9ff'],anglis:['Akmens anglis',27,'#3a3a3a'],dujos:['Gamtinės dujos',44,'#b0b8c4'],benzinas:['Benzinas',46,'#e8c14a'],vandenilis:['Vandenilis',120,'#cfe8ff']};
+  const cv=$('#cv canvas',root);const s={f:'malkos',m:10,e:40,b:0,run:false};const fu=$('#fu',root);
+  fu.innerHTML=Object.keys(F).map(k=>`<button class="opt" data-f="${k}">${F[k][0]}</button>`).join('');
+  const calc=()=>{const Qf=F[s.f][1]*s.m,Qw=Qf*s.e/100*s.b,T=Qw<672?20+Qw/8.4:100,vap=Qw>672?(Qw-672)/2.3:0;return {Qf,Qw,T,vap}};
+  const out=()=>{const z=calc(),q=F[s.f][1];fu.querySelectorAll('.opt').forEach(b=>b.classList.toggle('pick',b.dataset.f===s.f));
+   $('#vm',root).textContent=nf(s.m)+' g';$('#ve',root).textContent=nf(s.e)+' %';$('#o1',root).textContent=nf(z.T,1)+' °C';
+   $('#o2',root).innerHTML=`Visa kuro šiluma: Q = q·m = ${nf(q)} MJ/kg · ${nf(s.m/1000,3)} kg = <b>${nf(z.Qf)} kJ</b><br>Sudegė ${nf(s.b*100)} %, vandeniui atiteko <b>${nf(z.Qw)} kJ</b>${z.vap>0?`<br>Vanduo užvirė ir išgaravo ${nf(z.vap)} g`:''}`;
+   $('#bt',root).textContent=`Kiek šilumos išskiria ${nf(s.m)} g kuro`;
+   $('#bars',root).innerHTML=Object.keys(F).map(k=>`<div class="eb ${k===s.f?'hot':''}"><span>${F[k][0]}</span><i style="width:${F[k][1]/120*100}%"></i><em>${nf(F[k][1]*s.m)} kJ</em></div>`).join('');
+   $('#go',root).textContent=s.run?'Pauzė':s.b>=1?'Sudegė':s.b>0?'Tęsti':'Uždegti';$('#go',root).disabled=s.b>=1};
+  const reset=()=>{s.b=0;s.run=false;out()};
+  fu.addEventListener('click',e=>{const b=e.target.closest('[data-f]');if(b){s.f=b.dataset.f;reset()}});
+  $('#rm',root).addEventListener('input',e=>{s.m=+e.target.value;reset()});$('#re',root).addEventListener('input',e=>{s.e=+e.target.value;out()});
+  $('#go',root).addEventListener('click',()=>{s.run=!s.run;out()});$('#rs',root).addEventListener('click',reset);out();
+  return {frame(dt){if(s.run){s.b=Math.min(1,s.b+dt/5);if(s.b>=1){s.run=false;api.played()}out()}
+   const z=calc();const {x,W,H}=fit(cv);x.clearRect(0,0,W,H);const cx=W*.42,pw=Math.min(W*.42,230),ph=Math.min(H*.36,120),pb=H-120,px=cx-pw/2;
+   x.strokeStyle=P.muted;x.lineWidth=4;x.beginPath();x.moveTo(px-10,pb+2);x.lineTo(px-24,H-14);x.moveTo(px+pw+10,pb+2);x.lineTo(px+pw+24,H-14);x.moveTo(px-14,pb+2);x.lineTo(px+pw+14,pb+2);x.stroke();
+   x.fillStyle=tcol(z.T,.85);x.fillRect(px+4,pb-ph*.75,pw-8,ph*.75-2);x.strokeStyle=P.ink;x.lineWidth=3;x.beginPath();x.moveTo(px,pb-ph);x.lineTo(px,pb);x.lineTo(px+pw,pb);x.lineTo(px+pw,pb-ph);x.stroke();
+   if(z.T>=100){x.strokeStyle=P.muted;x.lineWidth=2.5;const t=performance.now()/400;for(let i=0;i<3;i++){const wx=cx-30+i*30;x.beginPath();for(let k=0;k<=12;k++){const yy=pb-ph-6-k*3,xx=wx+Math.sin(t+k*.5+i)*4;k?x.lineTo(xx,yy):x.moveTo(xx,yy)}x.stroke()}}
+   const tw=Math.min(pw*.7,160),ty=H-28,fh=(8+s.m*.7)*(1-s.b);x.fillStyle=P.panel2;x.fillRect(cx-tw/2,ty,tw,10);x.fillStyle=F[s.f][2];x.fillRect(cx-tw/2+8,ty-fh,tw-16,fh);
+   if(s.run)flames(x,cx,ty-fh,tw-20,5,1.2);
+   thermo(x,W-46,24,H-60,z.T);
+   x.textAlign='left';x.fillStyle=P.ink;x.font='600 15px Inter,sans-serif';x.textBaseline='middle';x.fillText(F[s.f][0]+', '+nf(s.m)+' g',16,22)
+  }}}},
+'silumos-balansas':{html:`<div class="stage"><div class="fig" id="cv"><canvas></canvas></div>
+<div class="cap"><span>Temperatūra, °C</span><span><span class="leg" style="--c:var(--hot)">metalas</span> &nbsp; <span class="leg" style="--c:var(--cold)">vanduo</span></span><span>laikas, s</span></div><div class="fig g" id="gv"><canvas></canvas></div></div>
+<div class="ctl"><div class="read"><div class="big" id="o1"></div><div id="o2"></div><div id="qb" style="margin-top:10px"></div></div>
+<div><label>Metalas</label><div class="row" id="mets"></div></div>
+<div><label for="rm1">Metalo masė <output id="vm1"></output></label><input type="range" id="rm1" min="0.2" max="3" step="0.1" value="1"></div>
+<div><label for="rT1">Metalo temperatūra <output id="vT1"></output></label><input type="range" id="rT1" min="40" max="300" step="5" value="100"></div>
+<div><label for="rm2">Vandens masė <output id="vm2"></output></label><input type="range" id="rm2" min="0.2" max="3" step="0.1" value="1"></div>
+<div><label for="rT2">Vandens temperatūra <output id="vT2"></output></label><input type="range" id="rT2" min="0" max="40" step="1" value="20"></div>
+<div class="row"><button class="btn hot" id="go">Įmesti į vandenį</button><button class="btn ghost" id="rs">Iš naujo</button></div></div>`,
+ mount(root,api){const M={aliuminis:['Aliuminis',920],gelezis:['Geležis',460],varis:['Varis',400]};const cv=$('#cv canvas',root),gv=$('#gv canvas',root);
+  const s={met:'gelezis',m1:1,T1:100,m2:1,T2:20,ph:0,fall:0,Tm:100,Tw:20,t:0,h:[],ht:0};const mets=$('#mets',root);
+  mets.innerHTML=Object.keys(M).map(k=>`<button class="opt" data-m="${k}">${M[k][0]}</button>`).join('');
+  const C1=()=>M[s.met][1]*s.m1,C2=()=>4200*s.m2,fin=()=>(C1()*s.T1+C2()*s.T2)/(C1()+C2());
+  const ins=['m1','T1','m2','T2'].map(k=>$('#r'+k,root));
+  const out=()=>{mets.querySelectorAll('.opt').forEach(b=>b.classList.toggle('pick',b.dataset.m===s.met));
+   $('#vm1',root).textContent=nf(s.m1,1)+' kg';$('#vT1',root).textContent=nf(s.T1)+' °C';$('#vm2',root).textContent=nf(s.m2,1)+' kg';$('#vT2',root).textContent=nf(s.T2)+' °C';
+   const c=M[s.met][1],done=s.ph===3;$('#o1',root).textContent=s.ph<2?'t = ?':nf(s.Tw,1)+' °C';
+   $('#o2',root).innerHTML=`${nf(c)}·${nf(s.m1,1)}·(${nf(s.T1)} − t) = 4200·${nf(s.m2,1)}·(t − ${nf(s.T2)})<br>${done?`Nusistovėjo t = <b>${nf(fin(),1)} °C</b>`:s.ph===2?'Šiluma teka iš metalo į vandenį…':'Įmesk metalą ir stebėk.'}`;
+   const Qg=C1()*(s.T1-s.Tm),Qr=C2()*(s.Tw-s.T2),Qf=Math.abs(C1()*(s.T1-fin()))||1;
+   $('#qb',root).innerHTML=`<div class="eb hot"><span>Metalas atidavė</span><i style="width:${clamp(Math.abs(Qg)/Qf,0,1)*100}%"></i><em>${nf(Qg/1000,1)} kJ</em></div><div class="eb"><span>Vanduo gavo</span><i style="width:${clamp(Math.abs(Qr)/Qf,0,1)*100}%"></i><em>${nf(Qr/1000,1)} kJ</em></div>`;
+   $('#go',root).textContent=s.ph===0?'Įmesti į vandenį':'Ištraukti ir kartoti';ins.forEach(i=>i.disabled=s.ph>0)};
+  const reset=()=>{s.ph=0;s.fall=0;s.Tm=s.T1;s.Tw=s.T2;s.t=0;s.h=[[0,s.T1,s.T2]];out()};
+  ins.forEach(i=>i.addEventListener('input',()=>{s.m1=+ins[0].value;s.T1=+ins[1].value;s.m2=+ins[2].value;s.T2=+ins[3].value;reset()}));
+  mets.addEventListener('click',e=>{const b=e.target.closest('[data-m]');if(b){s.met=b.dataset.m;reset()}});
+  $('#go',root).addEventListener('click',()=>{if(s.ph===0){s.ph=1;out()}else reset()});
+  $('#rs',root).addEventListener('click',()=>{ins[0].value=1;ins[1].value=100;ins[2].value=1;ins[3].value=20;s.m1=1;s.T1=100;s.m2=1;s.T2=20;s.met='gelezis';reset()});
+  reset();
+  return {frame(dt){
+   if(s.ph===1){s.fall=Math.min(1,s.fall+dt*1.6);if(s.fall>=1){s.ph=2;out()}}
+   else if(s.ph===2){const c1=C1(),c2=C2(),k=1.3/(1/c1+1/c2),q=k*(s.Tm-s.Tw)*dt;s.Tm-=q/c1;s.Tw+=q/c2;s.t+=dt;s.ht+=dt;if(s.ht>.08){s.ht=0;s.h.push([s.t,s.Tm,s.Tw])}
+    if(Math.abs(s.Tm-s.Tw)<.05){const f=fin();s.Tm=s.Tw=f;s.h.push([s.t,f,f]);s.ph=3;api.played()}out()}
+   let {x,W,H}=fit(cv);x.clearRect(0,0,W,H);const bw=Math.min(W*.5,260),bh=Math.min(H*.58,200),base=H-20,bx=W/2-bw/2,by=base-bh,wl=base-bh*(.45+.25*s.m2/3);
+   x.fillStyle=tcol(s.Tw,.8);x.fillRect(bx+4,wl,bw-8,base-wl-3);
+   const bs=26+20*Math.cbrt(s.m1),e=s.fall*s.fall,y0=36,y1=base-6-bs,yy=y0+(y1-y0)*e,xx=W/2-bs/2;
+   const g=x.createLinearGradient(xx,yy,xx,yy+bs);g.addColorStop(0,'#cfd4dd');g.addColorStop(1,'#7c8594');x.fillStyle=g;x.fillRect(xx,yy,bs,bs);
+   x.fillStyle=tcol(s.Tm,clamp((s.Tm-20)/150,0,1)*.8);x.fillRect(xx,yy,bs,bs);
+   if(yy+bs>wl){const t0=Math.max(yy,wl);x.fillStyle=tcol(s.Tw,.35);x.fillRect(xx,t0,bs,yy+bs-t0)}
+   x.strokeStyle=P.ink;x.lineWidth=3;x.beginPath();x.moveTo(bx,by);x.lineTo(bx,base);x.lineTo(bx+bw,base);x.lineTo(bx+bw,by);x.stroke();
+   x.font='600 14px Inter,sans-serif';x.textBaseline='middle';x.fillStyle=P.ink;x.textAlign='left';x.fillText(M[s.met][0]+': '+nf(s.Tm,1)+' °C',14,18);x.textAlign='right';x.fillText('Vanduo: '+nf(s.Tw,1)+' °C',W-14,18);
+   ({x,W,H}=fit(gv));const tmax=Math.max(5,Math.ceil(s.t+.5));const a=axes(x,W,H,{x0:0,x1:tmax,y0:0,y1:Math.max(s.T1,s.T2,100)});
+   line(x,s.h.map(p=>[p[0],p[1]]),a.X,a.Y,P.hot,3);line(x,s.h.map(p=>[p[0],p[2]]),a.X,a.Y,P.cold,3)
+  }}}},
+'varikliai':{html:`<div class="stage"><div class="fig" id="cv" style="min-height:380px"><canvas></canvas></div><div class="row" id="stk"></div></div>
+<div class="ctl"><div class="read"><div class="big" id="o1"></div><div id="o2"></div></div>
+<div><label for="rv">Sukimosi greitis <output id="vv"></output></label><input type="range" id="rv" min="1" max="10" step="1" value="3"></div>
+<div class="row"><button class="btn hot" id="go">Pauzė</button><button class="btn ghost" id="nx">Kitas taktas</button></div>
+<p class="small muted">Paspausk taktą po paveikslu arba „Kitas taktas“ – variklis sustos ir galėsite aptarti kiekvieną taktą atskirai.</p></div>`,
+ mount(root,api){const N=['Įsiurbimas','Suspaudimas','Darbo eiga','Išmetimas'];
+  const D=['Stūmoklis juda žemyn ir pro atidarytą įleidimo vožtuvą įsiurbia kuro ir oro mišinį.','Abu vožtuvai uždaryti. Stūmoklis kyla ir suspaudžia mišinį – šis įkaista.','Žvakė uždega mišinį. Karštos dujos plečiasi ir stumia stūmoklį žemyn – atliekamas darbas.','Atsidaro išleidimo vožtuvas. Stūmoklis kyla ir išstumia išmetamąsias dujas.'];
+  const V=[[1,0],[0,0],[0,0],[0,1]];const cv=$('#cv canvas',root);const s={th:.02,run:true,v:3,seen:new Set(),cur:-1};
+  const stk=$('#stk',root);stk.innerHTML=N.map((n,i)=>`<button class="opt" data-s="${i}">${n}</button>`).join('');
+  const si=()=>Math.floor(s.th/Math.PI)%4;
+  const out=()=>{const k=si();s.cur=k;stk.querySelectorAll('.opt').forEach(b=>b.classList.toggle('pick',+b.dataset.s===k));
+   $('#o1',root).textContent=N[k];$('#o2',root).innerHTML=`${D[k]}<br><span class="small muted">Įleidimo vožtuvas ${V[k][0]?'atidarytas':'uždarytas'}, išleidimo – ${V[k][1]?'atidarytas':'uždarytas'}. Stūmoklis juda ${k%2?'aukštyn':'žemyn'}.</span>`;
+   $('#vv',root).textContent=s.v+' / 10';$('#go',root).textContent=s.run?'Pauzė':'Paleisti'};
+  const see=()=>{s.seen.add(si());if(s.seen.size===4)api.played()};
+  stk.addEventListener('click',e=>{const b=e.target.closest('[data-s]');if(!b)return;s.th=+b.dataset.s*Math.PI+.02;s.run=false;see();out()});
+  $('#nx',root).addEventListener('click',()=>{s.th=((si()+1)%4)*Math.PI+.02;s.run=false;see();out()});
+  $('#rv',root).addEventListener('input',e=>{s.v=+e.target.value;out()});$('#go',root).addEventListener('click',()=>{s.run=!s.run;out()});out();
+  return {frame(dt){if(s.run){s.th=(s.th+dt*s.v*.45)%(4*Math.PI);if(si()!==s.cur){see();out()}}
+   const {x,W,H}=fit(cv);x.clearRect(0,0,W,H);const k=si(),pr=(s.th%Math.PI)/Math.PI;
+   const cx=W*.45,cw=Math.min(W*.3,150),hy=20,headH=34,yT=hy+headH+16,pH=34;
+   const r=Math.max(20,(H-yT-pH/2-30)/5.4),l=r*3.2,ycr=yT+pH/2+r+l;
+   const pt=yT+(r+l)-(r*Math.cos(s.th)+Math.sqrt(l*l-(r*Math.sin(s.th))**2));
+   x.fillStyle=P.panel2;x.beginPath();x.arc(cx,ycr,r+16,0,6.283);x.fill();x.strokeStyle=P.muted;x.lineWidth=2;x.stroke();
+   const pinx=cx+r*Math.sin(s.th),piny=ycr-r*Math.cos(s.th);
+   x.strokeStyle=P.ink;x.lineWidth=8;x.lineCap='round';x.beginPath();x.moveTo(cx,ycr);x.lineTo(pinx,piny);x.stroke();
+   x.fillStyle=['rgba(90,160,255,.35)','rgba(255,170,60,.45)',tcol(100-50*pr,.65),'rgba(140,140,140,.45)'][k];x.fillRect(cx-cw/2,hy+headH,cw,pt-hy-headH);
+   x.strokeStyle=P.muted;x.lineWidth=10;x.beginPath();x.moveTo(cx,pt+pH/2);x.lineTo(pinx,piny);x.stroke();x.lineCap='butt';
+   const g=x.createLinearGradient(cx-cw/2,0,cx+cw/2,0);g.addColorStop(0,'#9aa2b1');g.addColorStop(.5,'#dfe3ea');g.addColorStop(1,'#8a92a1');x.fillStyle=g;x.fillRect(cx-cw/2+3,pt,cw-6,pH);
+   x.fillStyle=P.ink;x.beginPath();x.arc(cx,pt+pH/2,5,0,6.283);x.fill();x.beginPath();x.arc(pinx,piny,6,0,6.283);x.fill();x.beginPath();x.arc(cx,ycr,7,0,6.283);x.fill();
+   const cb=yT+2*r+pH+12;x.strokeStyle=P.ink;x.lineWidth=5;x.beginPath();x.moveTo(cx-cw/2,hy+headH);x.lineTo(cx-cw/2,cb);x.moveTo(cx+cw/2,hy+headH);x.lineTo(cx+cw/2,cb);x.stroke();
+   x.fillStyle=P.panel2;x.fillRect(cx-cw/2-14,hy,cw+28,headH);x.strokeStyle=P.ink;x.lineWidth=2;x.strokeRect(cx-cw/2-14,hy,cw+28,headH);
+   [[-1,V[k][0]],[1,V[k][1]]].forEach(([sd,op])=>{const vx=cx+sd*cw*.28,o=op?Math.sin(pr*Math.PI)*10:0,vc=sd<0?P.cold:P.muted;x.strokeStyle=vc;x.lineWidth=4;x.beginPath();x.moveTo(vx,hy-8);x.lineTo(vx,hy+headH+o-3);x.stroke();
+    x.fillStyle=vc;x.fillRect(vx-cw*.11,hy+headH+o-4,cw*.22,5);
+    if(op){const dir=sd<0?1:-1,yy=hy+headH+22+dir*((performance.now()/500)%1)*16;x.beginPath();x.moveTo(vx-7,yy-7*dir);x.lineTo(vx,yy+3*dir);x.lineTo(vx+7,yy-7*dir);x.closePath();x.fill()}});
+   x.fillStyle=P.ink;x.fillRect(cx-4,hy-14,8,headH+12);
+   if(k===2&&pr<.18){x.fillStyle='#ffd34a';x.beginPath();for(let i=0;i<10;i++){const a=i*Math.PI/5,rr=i%2?6:16;x.lineTo(cx+Math.cos(a)*rr,hy+headH+6+Math.sin(a)*rr)}x.closePath();x.fill()}
+   x.font='13px Inter,sans-serif';x.fillStyle=P.muted;x.textBaseline='middle';x.textAlign='right';x.fillText('įleidimas',cx-cw/2-20,hy+headH/2);x.textAlign='left';x.fillText('išleidimas',cx+cw/2+20,hy+headH/2)
+  }}}},
+'judejimas':{html:`<div class="stage"><div class="fig g" id="cv" style="min-height:200px"><canvas></canvas></div>
+<div class="cap"><span>Atstumas nuo starto, m</span><span><span class="leg" style="--c:var(--fiz)">dviratininkas</span> &nbsp; <span class="leg" style="--c:var(--hot)">automobilis</span></span><span>laikas t, s</span></div><div class="fig g" id="gv"><canvas></canvas></div></div>
+<div class="ctl"><div class="read"><div class="big" id="o1"></div><div id="o2"></div></div>
+<div><label for="rA">Dviratininko greitis <output id="vA"></output></label><input type="range" id="rA" min="0" max="40" step="1" value="18"></div>
+<div><label for="rB">Automobilio greitis <output id="vB"></output></label><input type="range" id="rB" min="0" max="90" step="1" value="54"></div>
+<div><label for="r0">Dviratininkas pradeda priekyje <output id="v0"></output></label><input type="range" id="r0" min="0" max="500" step="50" value="0"></div>
+<div class="row"><button class="btn hot" id="go">Važiuoti</button><button class="btn ghost" id="rs">Iš naujo</button></div>
+<p class="small muted">Stebime 60 s; laikas pagreitintas 3 kartus.</p></div>`,
+ mount(root,api){const cv=$('#cv canvas',root),gv=$('#gv canvas',root);const s={a:18,b:54,s0:0,t:0,run:false};
+  const pos=t=>({A:s.s0+s.a/3.6*t,B:s.b/3.6*t});const D=()=>Math.max(100,s.s0+s.a/3.6*60,s.b/3.6*60)*1.05;
+  const out=()=>{const p=pos(s.t),d=p.B-p.A;$('#vA',root).textContent=nf(s.a)+' km/h';$('#vB',root).textContent=nf(s.b)+' km/h';$('#v0',root).textContent=nf(s.s0)+' m';
+   $('#o1',root).textContent='t = '+nf(s.t,1)+' s';
+   const meet=s.b>s.a&&s.s0>0?s.s0/((s.b-s.a)/3.6):null;
+   $('#o2',root).innerHTML=`Dviratininkas: ${nf(s.a)} km/h = ${nf(s.a/3.6,1)} m/s, nuvažiavo <b>${nf(p.A-s.s0)} m</b><br>Automobilis: ${nf(s.b)} km/h = ${nf(s.b/3.6,1)} m/s, nuvažiavo <b>${nf(p.B)} m</b>${s.t>0?`<br>${Math.abs(d)<.5?'Abu toje pačioje vietoje':d>0?`Automobilis priekyje ${nf(d)} m`:`Dviratininkas priekyje ${nf(-d)} m`}`:''}${meet!==null&&meet<=60?`<br>Automobilis pavys dviratininką po ${nf(meet,1)} s`:''}`;
+   $('#go',root).textContent=s.run?'Pauzė':s.t>=60?'Baigta':s.t>0?'Tęsti':'Važiuoti';$('#go',root).disabled=s.t>=60};
+  const reset=()=>{s.t=0;s.run=false;out()};
+  ['A','B','0'].forEach(k=>$('#r'+k,root).addEventListener('input',e=>{const v=+e.target.value;if(k==='A')s.a=v;else if(k==='B')s.b=v;else s.s0=v;reset()}));
+  $('#go',root).addEventListener('click',()=>{s.run=!s.run;out()});$('#rs',root).addEventListener('click',reset);out();
+  function bike(x,X,y,c){x.strokeStyle=c;x.lineWidth=3;x.beginPath();x.arc(X-12,y-9,9,0,6.283);x.moveTo(X+21,y-9);x.arc(X+12,y-9,9,0,6.283);x.moveTo(X-12,y-9);x.lineTo(X-2,y-24);x.lineTo(X+12,y-9);x.moveTo(X-2,y-24);x.lineTo(X+8,y-27);x.stroke();x.fillStyle=c;x.beginPath();x.arc(X-2,y-36,6,0,6.283);x.fill()}
+  function car(x,X,y,c){x.fillStyle=c;x.beginPath();x.roundRect(X-26,y-24,52,15,5);x.fill();x.beginPath();x.roundRect(X-14,y-34,28,12,5);x.fill();x.fillStyle=P.ink;x.beginPath();x.arc(X-15,y-8,7,0,6.283);x.moveTo(X+22,y-8);x.arc(X+15,y-8,7,0,6.283);x.fill()}
+  return {frame(dt){if(s.run){s.t=Math.min(60,s.t+dt*3);if(s.t>=10)api.played();if(s.t>=60)s.run=false;out()}
+   const p=pos(s.t),d=D();let {x,W,H}=fit(cv);x.clearRect(0,0,W,H);const L=30,R=30,ry=H*.48,X=v=>L+v/d*(W-L-R);
+   x.fillStyle=P.panel2;x.fillRect(0,ry-36,W,72);x.strokeStyle=P.bg;x.lineWidth=3;x.setLineDash([16,14]);x.beginPath();x.moveTo(0,ry);x.lineTo(W,ry);x.stroke();x.setLineDash([]);
+   x.fillStyle=P.muted;x.font='13px Inter,sans-serif';x.textAlign='center';x.textBaseline='top';
+   for(const v of ticks(0,d,W<520?4:8)){x.fillRect(X(v)-1,ry+36,2,8);x.fillText(nf(v)+' m',X(v),ry+48)}
+   x.fillStyle=P.ink;x.fillRect(X(0)-2,ry-36,4,72);
+   bike(x,X(p.A),ry-4,P.fiz);car(x,X(p.B),ry+32,P.hot);
+   ({x,W,H}=fit(gv));const a=axes(x,W,H,{x0:0,x1:60,y0:0,y1:d});
+   const lf=(f,c)=>{const pts=[];for(let t=0;t<s.t;t+=.5)pts.push([t,f(t)]);pts.push([s.t,f(s.t)]);line(x,pts,a.X,a.Y,c,3)};
+   lf(t=>pos(t).A,P.fiz);lf(t=>pos(t).B,P.hot)
+  }}}}
+
+};
+
+/* ---------- views ---------- */
+const ICON_F=`<svg viewBox="0 0 400 190" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="400" height="190" fill="#ffffff10"/>
+<circle cx="300" cy="96" r="120" fill="#ffffff0d"/><rect x="226" y="24" width="26" height="118" rx="13" fill="#ffffff"/><rect x="233" y="56" width="12" height="90" rx="6" fill="#ff6c36"/><circle cx="239" cy="150" r="22" fill="#ff6c36"/><circle cx="239" cy="150" r="22" fill="none" stroke="#fff" stroke-width="6"/>
+${[0,1,2,3,4].map(i=>`<rect x="258" y="${40+i*20}" width="${i%2?10:16}" height="3" fill="#ffffffaa"/>`).join('')}
+<path d="M104 150c-28-26-14-58 8-74-2 22 10 26 18 14 18 22 22 48-2 60" fill="#ff6c36"/><path d="M114 152c-12-14-6-30 6-38 0 12 6 14 10 8 8 12 8 24-4 30" fill="#ffd34a"/>
+<path d="M70 70q12-12 24 0t24 0M150 52q12-12 24 0t24 0" fill="none" stroke="#ffffff88" stroke-width="3"/></svg>`;
+const ICON_B=`<svg viewBox="0 0 400 190" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><ellipse cx="200" cy="100" rx="120" ry="70" fill="#ffffff22"/><ellipse cx="200" cy="100" rx="120" ry="70" fill="none" stroke="#fff" stroke-width="4"/><circle cx="220" cy="96" r="26" fill="#ffffff55"/><circle cx="220" cy="96" r="10" fill="#fff"/><ellipse cx="150" cy="80" rx="18" ry="9" fill="#ffffff66"/><ellipse cx="160" cy="124" rx="14" ry="7" fill="#ffffff66"/><ellipse cx="270" cy="128" rx="16" ry="8" fill="#ffffff66"/></svg>`;
+const ICON_G=`<svg viewBox="0 0 400 190" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><circle cx="200" cy="96" r="72" fill="#ffffff22" stroke="#fff" stroke-width="4"/><ellipse cx="200" cy="96" rx="30" ry="72" fill="none" stroke="#ffffffaa" stroke-width="3"/><path d="M128 96h144M138 60h124M138 132h124" stroke="#ffffffaa" stroke-width="3"/><path d="M170 60c10 8 26 4 30 16s-14 20-6 30 22 6 26 20" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg>`;
+
+function nextTopic(){return TIDS.find(t=>!tprog(t).done)}
+function viewHome(){const p=subjPct(),nt=nextTopic(),d=dueCards().length;
+ app.innerHTML=`<section class="band"><div class="wrap hero"><h1>Labas! Ko mokomės šiandien?</h1><p class="muted">9 klasė · ${S.mode==='kartu'?'mokomės kartu':'mokausi vienas'}</p>
+<div class="subjects"><a class="subj fiz" href="#fizika">${ICON_F}<div class="t"><b>Fizika</b><span>${nf(p*100)} % · paruoštos ${TIDS.length} temos</span><div class="bar"><i style="width:${p*100}%"></i></div></div></a>
+<div class="subj bio off">${ICON_B}<div class="t"><b>Biologija</b><span>Ruošiama</span></div></div><div class="subj geo off">${ICON_G}<div class="t"><b>Geografija</b><span>Ruošiama</span></div></div></div>
+<div class="next"><div class="card"><h3>${nt?'Tęsk nuo čia':'Visos paruoštos temos įveiktos'}</h3><p>${nt?TOPICS[nt].n:'Puikus darbas! Kol ruošiamos naujos temos, pakartok korteles.'}</p>${nt?`<a class="btn" href="#${nt}">Atidaryti temą</a>`:''}</div>
+<div class="card"><h3>Kartojimas</h3><p>${d?`Šiandien laukia ${d} ${d===1?'kortelė':d<10?'kortelės':'kortelių'}.`:'Šiandien viskas pakartota.'}</p><a class="btn ghost" href="#kartojimas">Kartoti</a></div></div></div></section>`}
+
+function viewSubject(){const sem=S.sem;
+ const rows=SEM[sem].map((it,i)=>{if(!it.id)return `<div class="trow soon"><span class="dot">${i+1}</span><span>${it.n}</span><span class="bar"></span><span class="tag">Ruošiama</span></div>`;
+  const g=tprog(it.id);return `<a class="trow" href="#${it.id}"><span class="dot ${g.done?'done':g.pct>0?'go':''}">${g.done?'✓':i+1}</span><span><b>${it.n}</b><br><span class="small muted">užduotys ${g.ok}/${g.n}</span></span><span class="bar"><i style="width:${g.pct*100}%"></i></span><span class="tag">${g.done?'Kartoti':g.pct>0?'Tęsti':'Pradėti'}</span></a>`}).join('');
+ app.innerHTML=`<section class="head band"><div class="wrap"><div class="crumb"><a href="#">Pradžia</a> / Fizika</div><h1>Fizika</h1><p class="muted">9 klasė · I gimnazijos klasė</p>
+<div class="seg" style="margin-top:14px"><button data-sem="1" class="${sem===1?'on':''}">1 pusmetis</button><button data-sem="2" class="${sem===2?'on':''}">2 pusmetis</button></div></div></section>
+<section class="band"><div class="wrap"><div class="topics">${rows}</div><p class="small muted" style="margin-top:16px">Temos pagal fizikos bendrąją programą 9 klasei. Paskirstymas pusmečiams apytikslis – jūsų mokykloje tvarka gali skirtis.</p></div></section>`;
+ app.onclick=e=>{const b=e.target.closest('[data-sem]');if(b){S.sem=+b.dataset.sem;save();viewSubject()}}}
+
+function viewTopic(id){const D=TOPICS[id],x=T(id),kartu=S.mode==='kartu',g=tprog(id);const idx=TIDS.indexOf(id);const pr=S.pred[id];
+ const pick=Number.isInteger(pr);
+ app.innerHTML=`<section class="head band"><div class="wrap"><div class="crumb"><a href="#">Pradžia</a> / <a href="#fizika">Fizika</a> / 1 pusmetis</div><h1>${D.n}</h1><p class="muted" style="max-width:60ch">${D.lead}</p>
+<div class="steps"><a href="#${id}" data-to="s1" class="${x.read?'ok':''}">Paaiškinimas</a><a href="#${id}" data-to="s2" class="${x.played?'ok':''}">Bandymas</a><a href="#${id}" data-to="s3" class="${g.ok===g.n?'ok':''}">Užduotys ${g.ok}/${g.n}</a></div></div></section>
+<section class="band" id="s1"><div class="wrap two"><div>${D.ex}<p style="margin-top:20px">${x.read?'<span class="muted">Perskaityta ✓</span>':'<button class="btn" data-act="read">Perskaičiau, einam toliau</button>'}</p></div><aside class="key">${D.key}</aside></div></section>
+<section class="band sec" id="s2"><div class="wrap"><div class="sechead"><h2>Bandymas</h2>${kartu?'<span class="muted small">Pirma spėkite kartu, tada išbandykite.</span>':''}</div>
+<div class="pred"><h3>Kaip manai?</h3><p style="font-weight:600">${D.pred.q}</p><div class="opts">${D.pred.o.map((o,i)=>`<button class="opt ${pick&&pr===i?'pick':''}" data-pred="${i}">${o}</button>`).join('')}</div><div id="rev"></div></div>
+<div class="lab" id="lab">${SIMS[id].html}${kartu&&!pick?'<div class="lock">Pirma pasirinkite spėjimą viršuje.</div>':''}</div></div></section>
+<section class="band sec" id="s3"><div class="wrap"><div class="sechead"><h2>Užduotys</h2><div class="score"><span id="sc">${g.ok}/${g.n}</span><span class="bar"><i id="scb" style="width:${g.ok/g.n*100}%"></i></span></div></div>
+<div class="tasks">${D.tasks.map((t,i)=>taskHtml(id,t,i,kartu)).join('')}</div></div></section>
+<section class="band sec"><div class="wrap foot">${idx>0?`<a class="btn ghost" href="#${TIDS[idx-1]}">← ${TOPICS[TIDS[idx-1]].n}</a>`:'<a class="btn ghost" href="#fizika">← Visos temos</a>'}
+<a class="btn ghost" href="#kartojimas">Kartoti korteles</a>${idx<TIDS.length-1?`<a class="btn" href="#${TIDS[idx+1]}">${TOPICS[TIDS[idx+1]].n} →</a>`:'<a class="btn" href="#fizika">Visos temos →</a>'}</div></section>`;
+ const api={played(){if(!x.played){x.played=true;addPts(10);save();const s=app.querySelector('[data-to=s2]');if(s)s.classList.add('ok')}showRev()}};
+ function showRev(){const r=$('#rev');if(!r||!Number.isInteger(S.pred[id])||!x.played)return;const ok=S.pred[id]===D.pred.a;
+  r.innerHTML=`<div class="reveal ${ok?'r':'w'}"><b>${ok?'Spėjimas pasitvirtino!':'Spėjote kitaip – tai irgi naudinga.'}</b>${D.pred.why}${kartu?`<p style="margin-top:8px"><b style="display:inline">Pokalbiui.</b> ${D.pred.talk}</p>`:''}</div>`}
+ showRev();
+ active=SIMS[id].mount($('#lab'),api);
+ app.onclick=e=>{const t=e.target;
+  const to=t.closest('[data-to]');if(to){e.preventDefault();$('#'+to.dataset.to).scrollIntoView({behavior:'smooth'});return}
+  if(t.closest('[data-act=read]')){x.read=true;addPts(5);save();t.closest('p').innerHTML='<span class="muted">Perskaityta ✓</span>';app.querySelector('[data-to=s1]').classList.add('ok');$('#s2').scrollIntoView({behavior:'smooth'});return}
+  const pb=t.closest('[data-pred]');if(pb){S.pred[id]=+pb.dataset.pred;day();save();app.querySelectorAll('[data-pred]').forEach(b=>b.classList.toggle('pick',b===pb));const l=$('#lab .lock');if(l)l.remove();showRev();return}
+  const ob=t.closest('[data-opt]');if(ob){const [ti,oi]=ob.dataset.opt.split(':').map(Number);answer(id,ti,oi===D.tasks[ti].a,ob);return}
+  const ck=t.closest('[data-check]');if(ck){const ti=+ck.dataset.check,inp=$('#in'+ti),v=parseFloat(String(inp.value).replace(/\s/g,'').replace(',','.'));
+   if(!isFinite(v)){fb(ti,'h','Įrašyk skaičių.');return}answer(id,ti,Math.abs(v-D.tasks[ti].num)<=D.tasks[ti].tol,null);return}
+  const hb=t.closest('[data-hint]');if(hb){const ti=+hb.dataset.hint;fb(ti,'h','<b>Užuomina.</b> '+D.tasks[ti].h,true);return}
+  const db=t.closest('[data-dad]');if(db){const ti=+db.dataset.dad;fb(ti,'p','<b>Tėčiui.</b> '+D.tasks[ti].p,true);return}};
+ app.onkeydown=e=>{if(e.key==='Enter'&&e.target.matches('.ans input')){e.preventDefault();app.querySelector(`[data-check="${e.target.id.slice(2)}"]`).click()}}}
+
+function taskHtml(id,t,i,kartu){const ok=!!T(id).ok[i];
+ return `<div class="task ${ok?'done':''}" id="tk${i}"><div class="n">${i+1} iš ${TOPICS[id].tasks.length}${ok?' · teisingai ✓':''}</div><p class="q">${t.q}</p>
+${t.o?`<div class="opts">${t.o.map((o,j)=>`<button class="opt ${ok&&j===t.a?'right':''}" data-opt="${i}:${j}">${o}</button>`).join('')}</div>`
+:`<div class="ans"><input id="in${i}" inputmode="decimal" autocomplete="off" aria-label="Atsakymas" value="${ok?nf(t.num).replace(/\s/g,''):''}"><span>${t.u}</span><button class="btn" data-check="${i}">Tikrinti</button></div>`}
+<div id="fb${i}">${ok?`<div class="fb r">${t.ex}</div>`:''}</div><div class="tools"><button data-hint="${i}">Užuomina</button>${kartu?`<button data-dad="${i}">Tėčiui</button>`:''}</div></div>`}
+function fb(i,k,h,add){const el=$('#fb'+i);const d=`<div class="fb ${k}">${h}</div>`;el.innerHTML=add?el.innerHTML.replace(/<div class="fb [hp]">.*?<\/div>/g,'')+d:d}
+function answer(id,i,ok,btn){const D=TOPICS[id],x=T(id),t=D.tasks[i];
+ if(btn){btn.parentNode.querySelectorAll('.opt').forEach(b=>b.classList.remove('right','wrong'));btn.classList.add(ok?'right':'wrong')}
+ if(ok){fb(i,'r','<b>Teisingai!</b> '+t.ex);if(!x.ok[i]){x.ok[i]=true;addPts(10);save()}$('#tk'+i).classList.add('done')}
+ else fb(i,'w','<b>Dar ne.</b> '+(t.o?t.ex:'Pabandyk dar kartą arba paspausk „Užuomina“.'));
+ const g=tprog(id);$('#sc').textContent=g.ok+'/'+g.n;$('#scb').style.width=g.ok/g.n*100+'%';const s3=app.querySelector('[data-to=s3]');if(s3){s3.textContent='Užduotys '+g.ok+'/'+g.n;s3.classList.toggle('ok',g.ok===g.n)}}
+
+let queue=[],flipped=false;
+function viewReview(all){queue=(all?CARDS.slice():dueCards()).sort(()=>Math.random()-.5);flipped=false;renderCard()}
+function renderCard(){const c=queue[0];
+ app.innerHTML=`<section class="band"><div class="wrap"><div class="sechead"><div><h1>Kartojimas</h1><p class="muted">Paspausk kortelę, kad pamatytum atsakymą. Tada braukite: dešinėn – žinojau, kairėn – dar ne.</p></div><span class="chip"><b>${queue.length}</b> liko</span></div>
+<div class="deck">${c?`<button class="flip ${flipped?'back':''}" id="flip"><small>${TOPICS[c.t].n}</small>${flipped?`<span class="f">${c.f}</span><span class="b">${c.b}</span>`:`<span class="f">${c.f}</span><small>Ką tai reiškia? Paspausk.</small>`}</button>
+<div class="row"><button class="btn ghost" data-k="0" ${flipped?'':'disabled'}>Dar ne</button><button class="btn" data-k="1" ${flipped?'':'disabled'}>Žinojau</button></div>`
+:`<div class="card" style="text-align:center;max-width:520px"><h3>Šiandien viskas pakartota</h3><p>Rytoj kortelės sugrįš – tos, kurias žinai, rečiau.</p><div class="row" style="justify-content:center"><button class="btn ghost" data-all="1">Kartoti visas</button><a class="btn" href="#fizika">Į temas</a></div></div>`}</div></div></section>`;
+ app.onclick=e=>{if(e.target.closest('[data-all]')){viewReview(true);return}const k=e.target.closest('[data-k]');if(k&&flipped)grade(+k.dataset.k)};
+ const f=$('#flip');if(!f)return;let sx=null,dx=0;
+ f.addEventListener('pointerdown',e=>{sx=e.clientX;dx=0});
+ f.addEventListener('pointermove',e=>{if(sx===null)return;dx=e.clientX-sx;if(flipped)f.style.transform=`translateX(${dx}px) rotate(${dx/30}deg)`});
+ f.addEventListener('pointerup',()=>{if(sx===null)return;sx=null;if(flipped&&Math.abs(dx)>80){grade(dx>0?1:0);return}f.style.transform='';if(Math.abs(dx)<10){flipped=!flipped;renderCard()}});
+ f.addEventListener('pointercancel',()=>{sx=null;f.style.transform=''});
+ f.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();flipped=!flipped;renderCard()}})}
+function grade(k){const c=queue.shift();const r=S.cards[c.id]||{box:1,due:todayStr()};const IV=[1,2,4,7,14];
+ if(k){r.box=Math.min(5,r.box+(S.cards[c.id]?1:0));r.due=todayStr(IV[r.box-1])}else{r.box=1;r.due=todayStr(1);if(!queue.some(q=>q.id===c.id))queue.push(c)}
+ S.cards[c.id]=r;addPts(2);save();flipped=false;renderCard()}
+
+const BADGES=[['Pirmas žingsnis','Perskaityta pirma tema',()=>TIDS.some(t=>T(t).read)],['Eksperimentatorius','Išbandyti visi bandymai',()=>TIDS.every(t=>T(t).played)],
+ ['Be klaidų','Visos vienos temos užduotys teisingos',()=>TIDS.some(t=>tprog(t).ok===tprog(t).n)],['Kartotojas','Pakartotos 10 kortelių',()=>Object.keys(S.cards).length>=10],
+ ['Trys dienos iš eilės','Mokytasi 3 dienas paeiliui',()=>streak()>=3],['Šilumos žinovas','Įveiktos visos šilumos temos',()=>TIDS.slice(0,6).every(t=>tprog(t).done)]];
+function viewProgress(){
+ app.innerHTML=`<section class="band"><div class="wrap"><h1>Progresas</h1><p class="muted" id="sync">${syncText()}</p><p id="login" ${sync==='login'?'':'hidden'}><a class="btn" href="/web/login?redirect=/mokausi" target="_top">Prisijungti</a></p>
+<div class="prog" style="margin-top:20px"><div><div class="stats"><div class="stat"><b>${nf(S.pts)}</b>taškų</div><div class="stat"><b>${streak()} d.</b>serija</div><div class="stat"><b>${TIDS.filter(t=>tprog(t).done).length}/${TIDS.length}</b>temos įveiktos</div></div>
+<h2>Fizika · temos</h2>${TIDS.map(t=>{const g=tprog(t),x=T(t);return `<a class="pr" href="#${t}" style="color:inherit;text-decoration:none"><span><b>${TOPICS[t].n}</b><br><span class="small muted">${x.read?'perskaityta':'neperskaityta'} · ${x.played?'bandymas atliktas':'bandymas laukia'} · užduotys ${g.ok}/${g.n}</span></span><span class="bar"><i style="width:${g.pct*100}%"></i></span><span class="n">${nf(g.pct*100)} %</span></a>`}).join('')}
+<p style="margin-top:20px"><button class="btn ghost" data-act="reset">Pradėti iš naujo</button></p></div>
+<div><h2 style="margin-bottom:12px">Ženkliukai</h2><div class="badges">${BADGES.map(b=>{const got=b[2]();return `<div class="badge ${got?'got':''}"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="${got?'var(--hot)':'none'}" stroke="${got?'var(--hot)':'var(--line)'}" stroke-width="3"/>${got?'<path d="M12 21l6 6 11-13" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>':''}</svg><b>${b[0]}</b>${b[1]}</div>`}).join('')}</div></div></div></div></section>`;
+ app.onclick=e=>{if(e.target.closest('[data-act=reset]')){const m=document.createElement('div');m.className='modal';m.innerHTML='<div class="card"><h3>Ištrinti visą progresą?</h3><p>Taškai, atsakymai ir kortelių kartojimas prasidės nuo nulio. To atšaukti negalima.</p><div class="row"><button class="btn ghost" data-x="0">Ne</button><button class="btn hot" data-x="1">Taip, ištrinti</button></div></div>';
+  document.body.appendChild(m);m.onclick=ev=>{const b=ev.target.closest('[data-x]');if(!b&&ev.target!==m)return;if(b&&b.dataset.x==='1'){const mode=S.mode;S=blank();S.mode=mode;save();viewProgress()}m.remove()}}}}
+
+/* ---------- router ---------- */
+let lastHash=null;
+function route(force){const h=location.hash.slice(1);if(!force&&h===lastHash)return;const same=h===lastHash;lastHash=h;active=null;app.onclick=null;app.onkeydown=null;
+ if(h==='fizika')viewSubject();else if(TOPICS[h])viewTopic(h);else if(h==='kartojimas')viewReview();else if(h==='progresas')viewProgress();else viewHome();
+ if(!same)window.scrollTo(0,0);top()}
+window.addEventListener('hashchange',()=>route());
+applyMode();route(true);initSync();
+}
+</script>
+</body>
+</html>

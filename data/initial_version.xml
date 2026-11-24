@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="version_initial" model="mokausi.version">
+        <field name="name">Fizika: 1 pusmetis</field>
+        <field name="html_file" type="base64" file="mokausi/static/src/initial/index.html"/>
+        <field name="html_filename">index.html</field>
+        <field name="notes">Pradinė versija: 7 fizikos 1 pusmečio temos.</field>
+    </record>
+</odoo>

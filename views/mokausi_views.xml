@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="mokausi_version_view_list" model="ir.ui.view">
+        <field name="name">mokausi.version.list</field>
+        <field name="model">mokausi.version</field>
+        <field name="arch" type="xml">
+            <list decoration-success="is_current">
+                <field name="name"/>
+                <field name="html_filename"/>
+                <field name="file_size"/>
+                <field name="create_date" string="Įkelta"/>
+                <field name="create_uid" string="Įkėlė" widget="many2one_avatar_user" optional="hide"/>
+                <field name="is_current"/>
+                <button name="action_make_current" type="object" string="Rodyti svetainėje" icon="fa-check" invisible="is_current"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="mokausi_version_view_form" model="ir.ui.view">
+        <field name="name">mokausi.version.form</field>
+        <field name="model">mokausi.version</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_make_current" type="object" string="Rodyti šią versiją svetainėje" class="btn-primary" invisible="is_current or not id"/>
+                    <button name="action_open_site" type="object" string="Atidaryti svetainę" class="btn-secondary"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Rodoma" bg_color="text-bg-success" invisible="not is_current"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="pvz. Fizika: 2 pusmetis"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="html_file" filename="html_filename"/>
+                            <field name="html_filename" invisible="1"/>
+                            <field name="file_size" invisible="not id"/>
+                        </group>
+                        <group>
+                            <field name="is_current"/>
+                            <field name="create_date" string="Įkelta" invisible="not id"/>
+                            <field name="create_uid" string="Įkėlė" invisible="not id"/>
+                        </group>
+                    </group>
+                    <field name="notes" placeholder="Kas pasikeitė šioje versijoje?"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_mokausi_version" model="ir.actions.act_window">
+        <field name="name">Svetainės versijos</field>
+        <field name="res_model">mokausi.version</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Įkelkite svetainės HTML failą</p>
+            <p>Naujai įkelta versija iškart rodoma adresu /mokausi. Senesnes versijas galima grąžinti mygtuku „Rodyti svetainėje“.</p>
+        </field>
+    </record>
+
+    <record id="mokausi_progress_view_list" model="ir.ui.view">
+        <field name="name">mokausi.progress.list</field>
+        <field name="model">mokausi.progress</field>
+        <field name="arch" type="xml">
+            <list create="0">
+                <field name="user_id"/>
+                <field name="points"/>
+                <field name="write_date" string="Paskutinį kartą"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="mokausi_progress_view_form" model="ir.ui.view">
+        <field name="name">mokausi.progress.form</field>
+        <field name="model">mokausi.progress</field>
+        <field name="arch" type="xml">
+            <form create="0">
+                <sheet>
+                    <group>
+                        <field name="user_id" readonly="1"/>
+                        <field name="points"/>
+                        <field name="write_date" string="Paskutinį kartą"/>
+                    </group>
+                    <field name="data"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_mokausi_progress" model="ir.actions.act_window">
+        <field name="name">Progresas</field>
+        <field name="res_model">mokausi.progress</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Progreso dar nėra</p>
+            <p>Įrašas atsiras, kai prisijungęs naudotojas pradės mokytis adresu /mokausi.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_mokausi_root" name="Mokausi" web_icon="mokausi,static/description/icon.png" sequence="90" groups="base.group_system"/>
+    <menuitem id="menu_mokausi_version" name="Svetainės versijos" parent="menu_mokausi_root" action="action_mokausi_version" sequence="10"/>
+    <menuitem id="menu_mokausi_progress" name="Progresas" parent="menu_mokausi_root" action="action_mokausi_progress" sequence="20"/>
+</odoo>
